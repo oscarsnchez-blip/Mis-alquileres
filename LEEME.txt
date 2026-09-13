@@ -1,0 +1,9 @@
+MIS ALQUILERES V2
+
+1. Descomprime este ZIP.
+2. Sube los seis archivos a la raiz de un repositorio de GitHub.
+3. En Settings > Pages, selecciona Deploy from a branch, main y /(root).
+4. Abre en Chrome la direccion HTTPS que muestre GitHub Pages.
+5. En Chrome Android: menu de tres puntos > Instalar aplicacion o Anadir a pantalla de inicio.
+
+IMPORTANTE: los datos se guardan solo en el navegador del movil. En la app usa Mas > Copia completa periodicamente.
