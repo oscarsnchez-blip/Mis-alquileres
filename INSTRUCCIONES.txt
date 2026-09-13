@@ -1,7 +1,0 @@
-GESTIÓN ALQUILER V3
-
-Antes de actualizar, en la V2 usa Más > Copia completa.
-
-En GitHub sustituye los archivos index.html, manifest.webmanifest, sw.js, icon-192.png e icon-512.png por los de este paquete. Deben quedar en la raíz. Pulsa Commit changes. Abre después GitHub Pages en Chrome y recarga. Si el icono conserva el nombre antiguo, desinstala la aplicación de la pantalla de inicio y vuelve a instalarla desde Chrome.
-
-La V3 intenta importar automáticamente los datos locales de la V2 en el mismo navegador. La proyección hipotecaria supone cuota constante y usa el interés guardado. En una hipoteca variable debes actualizar el tipo cuando se revise.
