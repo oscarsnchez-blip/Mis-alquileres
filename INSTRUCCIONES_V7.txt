@@ -1,0 +1,18 @@
+GESTIÓN ALQUILER V7
+
+CAMBIOS PRINCIPALES
+- Contratos: banco receptor del alquiler y depósito de fianza en texto libre.
+- Cobros: lista mensual por contratos activos, con un check para registrar el cobro y guardar automáticamente la fecha.
+- Cobros: filtros por vivienda y mes; muestra cobrado y pendiente.
+- El cobro marcado puede editarse para corregir fecha, importe, estado o notas.
+- Inmuebles: referencia catastral, CUPS electricidad, CUPS gas y comunidad mensual.
+- Dashboard: tabla resumen de hipotecas con fila TOTAL.
+- Gráfica: solo deuda hipotecaria pendiente año a año.
+- Conserva automáticamente los datos guardados por V5 o V4 en el mismo navegador y URL.
+
+ACTUALIZAR EN GITHUB
+1. Haz primero una Copia JSON desde la app actual.
+2. Sustituye en el repositorio index.html, manifest.webmanifest, sw.js, icon-192.png e icon-512.png.
+3. Confirma con Commit changes.
+4. Abre GitHub Pages en Chrome y recarga. Si aparece la versión anterior, cierra la app y vuelve a abrirla. Si persiste, desinstala solo el acceso directo/app y vuelve a instalar desde la misma URL.
+5. No uses sw.js.pdf en GitHub: el archivo correcto de esta versión se llama sw.js.
