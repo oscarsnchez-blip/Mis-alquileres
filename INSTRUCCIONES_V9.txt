@@ -1,0 +1,18 @@
+GESTIÓN ALQUILER V9
+
+NOVEDADES
+- Barra inferior renovada: iconos, pestaña activa con degradado, sombras y respuesta al pulsar.
+- Tarjetas, cabecera y botones modernizados.
+- Piso: tasa de basura anual.
+- Fiscalidad: incorpora automáticamente IBI, tasa de basura y comunidad anual.
+- Avisos de gastos: muestran también el importe.
+- Tabla principal de hipotecas: cuota, capital e intereses del mes actual y deuda pendiente.
+- Amortización: tabla anual coherente, sumando cuotas, intereses y capital de cada año.
+- Conserva automáticamente los datos de V8, V7, V5 o V4 en la misma URL.
+
+ACTUALIZAR GITHUB
+1. En la versión actual, entra en Más y descarga una Copia JSON.
+2. Extrae el ZIP.
+3. Sustituye index.html, manifest.webmanifest, sw.js, icon-192.png e icon-512.png en la raíz del repositorio.
+4. Pulsa Commit changes.
+5. Abre GitHub Pages y recarga. Si sigue la versión anterior, cierra y abre la app. Como último recurso, desinstala solo el acceso directo y vuelve a instalarlo desde la misma URL.
