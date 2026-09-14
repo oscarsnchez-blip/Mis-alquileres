@@ -1,0 +1,17 @@
+GESTIÓN ALQUILER V8
+
+CAMBIOS
+- Gráfica inicial limitada a los próximos 10 años, eje vertical legible y ampliación al pulsarla.
+- Campo IBI anual en cada piso.
+- IBI y comunidad anual aparecen automáticamente en Fiscalidad y se suman al total.
+- Contratos: banco receptor, importe de fianza y lugar donde está depositada.
+- Cobros rápidos mediante check, filtros por vivienda y mes e histórico con fecha.
+- Comprobante de pago con el mismo contenido y firma del modelo enviado.
+- Tras generar el comprobante, usa Guardar como PDF en el diálogo de impresión de Android.
+
+ACTUALIZAR GITHUB
+1. En la aplicación actual: Más > Copia JSON.
+2. Extrae este ZIP.
+3. Sustituye en la raíz del repositorio index.html, manifest.webmanifest, sw.js e iconos.
+4. Pulsa Commit changes.
+5. Abre GitHub Pages y recarga. Si continúa la versión anterior, cierra y abre la app. Como último recurso desinstala el acceso directo y vuelve a instalarlo desde la misma URL.
