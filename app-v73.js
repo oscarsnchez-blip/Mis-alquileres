@@ -2067,7 +2067,6 @@ window.addEventListener('load',()=>{
         add?panel.insertBefore(empty,add):panel.appendChild(empty);
       }
     }
-    if(typeof renderProfit==='function')renderProfit();
   };
   const setVersion=()=>{const h=document.querySelector('header h1');if(!h)return;h.querySelectorAll('.mininos-header-version,.mininos-version-badge').forEach(x=>x.remove());const b=document.createElement('small');b.className='mininos-header-version';b.textContent='v138';h.appendChild(b);document.title='Gestión Alquiler Mininos v138'};
   setVersion();setTimeout(setVersion,300);setTimeout(setVersion,1200);
