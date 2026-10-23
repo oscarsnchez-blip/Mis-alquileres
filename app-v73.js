@@ -32,7 +32,7 @@ window.MININOS_APP_VERSION='v161';
       requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{
         previous.forEach(([name,value,priority])=>value?button.style.setProperty(name,value,priority):button.style.removeProperty(name));
         replay.add(button);button.click();
-      },500)));
+      },200)));
     },true);
   };
   if(document.head)install();else document.addEventListener('DOMContentLoaded',install,{once:true});
