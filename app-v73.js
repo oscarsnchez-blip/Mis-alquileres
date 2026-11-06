@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v181';
+window.MININOS_APP_VERSION='v182';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -2268,7 +2268,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   }
   function compactExpenseModal(){const form=E('fields')?.querySelector('.v180-expense-form');if(!form)return;E('modal')?.classList.add('expense-modal181');form.querySelectorAll('select').forEach(mininosCompactSelect)}
   const baseOpen=window.openProfitExpense||openProfitExpense;
-  window.openProfitExpense=function(id=''){baseOpen(id);compactExpenseModal()};openProfitExpense=window.openProfitExpense;
+  window.openProfitExpense=function(id=''){baseOpen(id);requestAnimationFrame(compactExpenseModal);setTimeout(compactExpenseModal,40)};openProfitExpense=window.openProfitExpense;
   const baseRender=window.renderProfit||renderProfit;
   window.renderProfit=function(){const result=baseRender.apply(this,arguments);compactProfitFilters();return result};renderProfit=window.renderProfit;
   const style=document.createElement('style');style.id='mininos-v181-compact-ui';style.textContent=`
@@ -2287,3 +2287,28 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   `;document.head.appendChild(style);compactProfitFilters();setTimeout(compactProfitFilters,400)
 })();
 /* FIN V181 */
+
+/* V182: correccion visual final del modal de gastos y filtros. */
+(()=>{const css=document.createElement('style');css.id='mininos-v182-final-ui';css.textContent=`
+#modal.expense-modal181{width:min(92vw,600px)!important;max-width:600px!important;max-height:88dvh!important;padding:0!important;border:0!important;border-radius:18px!important;overflow:hidden!important;background:#fff!important}
+#modal.expense-modal181 #form{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;width:100%!important;max-height:88dvh!important;padding:0!important;margin:0!important}
+#modal.expense-modal181 #formTitle{margin:0!important;padding:13px 15px 8px!important;font-size:18px!important;line-height:1.2!important;font-weight:850!important;color:#17364a!important}
+#modal.expense-modal181 #fields{display:block!important;min-height:0!important;overflow-y:auto!important;padding:4px 12px 10px!important}
+#modal.expense-modal181 .v180-expense-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+#modal.expense-modal181 .v180-expense-form>label{display:grid!important;gap:3px!important;min-width:0!important;margin:0!important;padding:7px 8px!important;border:1px solid #e1e9ee!important;border-radius:11px!important;background:#f8fafc!important;color:#5d7383!important;font-size:9px!important;font-weight:800!important;line-height:1.2!important}
+#modal.expense-modal181 .v180-expense-form>label>input,#modal.expense-modal181 .v180-expense-form>label>select{box-sizing:border-box!important;width:100%!important;height:34px!important;min-height:34px!important;margin:0!important;padding:5px 8px!important;border:1px solid #d7e2e8!important;border-radius:9px!important;background:#fff!important;color:#16364b!important;font-size:11px!important;line-height:1.2!important;box-shadow:none!important}
+#modal.expense-modal181 #pfDynamicFields{grid-column:1/-1!important;display:grid!important;gap:7px!important;min-width:0!important}
+#modal.expense-modal181 .v180-group{display:grid!important;gap:7px!important;margin:0!important;padding:8px!important;border:1px solid #e1e9ee!important;border-radius:11px!important;background:#f8fafc!important}
+#modal.expense-modal181 .v180-group>b{margin:0!important;color:#18394d!important;font-size:11px!important;line-height:1.2!important}
+#modal.expense-modal181 .v180-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}.v180-row.three{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#modal.expense-modal181 .v180-row label{display:grid!important;gap:3px!important;margin:0!important;color:#607789!important;font-size:8px!important;font-weight:800!important}
+#modal.expense-modal181 .v180-row input,#modal.expense-modal181 .v180-row select{box-sizing:border-box!important;width:100%!important;height:33px!important;min-height:33px!important;margin:0!important;padding:5px 7px!important;border:1px solid #d7e2e8!important;border-radius:8px!important;background:#fff!important;font-size:10px!important;box-shadow:none!important}
+#modal.expense-modal181 .v180-history{grid-column:1/-1!important;margin:0!important;padding:8px 9px!important;border:1px solid #e1e9ee!important;border-radius:10px!important;background:#fff!important}.v180-history summary{font-size:9px!important;font-weight:850!important}
+#modal.expense-modal181 .compact-select181{width:100%!important;min-width:0!important}.compact-select181-button{height:34px!important;min-height:34px!important;padding:5px 8px!important;border:1px solid #d7e2e8!important;border-radius:9px!important;background:#fff!important;font-size:10px!important;box-shadow:none!important}.compact-select181-menu{position:static!important;max-height:132px!important;margin-top:3px!important;padding:3px!important;border-radius:9px!important;box-shadow:none!important}.compact-select181-menu button{min-height:27px!important;padding:4px 6px!important;font-size:9px!important}
+#modal.expense-modal181 .actions{position:sticky!important;bottom:0!important;z-index:2!important;display:flex!important;justify-content:flex-end!important;gap:7px!important;margin:0!important;padding:8px 12px!important;border-top:1px solid #e1e9ee!important;background:#fff!important}.expense-modal181 .actions button{min-height:32px!important;margin:0!important;padding:6px 11px!important;border-radius:9px!important;font-size:10px!important}
+#profit .profit-toolbar.profit-toolbar181{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:7px!important}.profit-toolbar181 .compact-select181-button{height:31px!important;min-height:31px!important;font-size:9px!important}.profit-toolbar181 .compact-select181-menu{max-height:120px!important}
+@media(max-width:520px){#modal.expense-modal181{width:94vw!important;max-height:90dvh!important}#modal.expense-modal181 #formTitle{font-size:17px!important;padding:12px 13px 7px!important}#modal.expense-modal181 #fields{padding:4px 10px 9px!important}#modal.expense-modal181 .v180-expense-form{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}#modal.expense-modal181 .v180-expense-form>label{padding:6px!important}.v180-row.three{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+`;document.head.appendChild(css);
+const upgrade=()=>{const form=E('fields')?.querySelector('.v180-expense-form');if(!form)return;E('modal')?.classList.add('expense-modal181');form.querySelectorAll('select').forEach(s=>{if(s.dataset.compact181!=='1'&&typeof mininosCompactSelect==='function')mininosCompactSelect(s)})};
+new MutationObserver(()=>{upgrade()}).observe(E('modal'),{subtree:true,childList:true});setTimeout(upgrade,0)})();
+/* FIN V182 */
