@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v182';
+window.MININOS_APP_VERSION='v180';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -903,78 +903,25 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   renderAll();
 
 
-  /* V62.1: tres ajustes finales sobre la funcionalidad de V62 */
-  const v621Style=document.createElement('style');
-  v621Style.textContent=`
-    /* 1. Tick de Cobros un poco mas a la derecha, sin alterar la tarjeta */
-    #paymentList .modern-actions{transform:translateX(14px)!important}
-    /* 2. Cinco KPI de Inicio mas compactos */
-    #metrics{gap:7px!important}
-    #metrics .card{padding:9px 10px!important;margin-bottom:0!important;border-radius:14px!important}
-    #metrics .metric b{font-size:14px!important;line-height:1.15!important;margin-top:2px!important}
-    #metrics .muted{font-size:10px!important;line-height:1.15!important}
-    /* Se conserva exactamente el aspecto cerrado de los filtros de V62 */
-    #profit .profit-toolbar{display:grid!important;grid-template-columns:1fr!important;gap:6px!important}
-    #profit .profit-toolbar>div{display:grid!important;grid-template-columns:88px minmax(0,1fr)!important;align-items:center!important;gap:8px!important}
-    #profit .profit-toolbar label{margin:0!important;font-size:12px!important;font-weight:700!important}
-    /* Lista abierta personalizada, compacta y controlada por la app */
-    .v621-select-button{width:100%;padding:7px 34px 7px 10px;min-height:34px;border:1px solid #ccd6dd;border-radius:9px;background:#fff;color:var(--txt);font:inherit;text-align:left;position:relative;box-shadow:none}
-    .v621-select-button:after{content:'⌄';position:absolute;right:10px;color:var(--mut)}
-    .v621-select-menu{position:fixed;z-index:9999;width:min(250px,calc(100vw - 28px));max-height:min(520px,calc(100vh - 16px));overflow:auto;padding:3px;background:#fff;border:1px solid #dbe4ea;border-radius:13px;box-shadow:0 18px 48px #102a4340}
-    .v621-select-option{display:block;width:100%;padding:5px 9px;border:0;border-radius:8px;background:#fff;color:var(--txt);font:500 12px system-ui;text-align:left;box-shadow:none}
-    .v621-select-option.selected{background:#e8f4f8;color:#0f6f8c;font-weight:800}
-    #profitProperties .profit-source{display:none!important}
+  /* V180: filtros de Rentabilidad limpios, sin menus flotantes */
+  const v180FilterStyle=document.createElement('style');
+  v180FilterStyle.textContent=`
+    #profit .profit-toolbar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:8px!important;border:1px solid #e2e9ee!important;border-radius:13px!important;background:#f8fafc!important}
+    #profit .profit-toolbar>div{display:grid!important;grid-template-columns:1fr!important;gap:3px!important;min-width:0!important}
+    #profit .profit-toolbar label{margin:0!important;color:#607789!important;font-size:9px!important;font-weight:800!important}
+    #profit .profit-toolbar select{display:block!important;position:static!important;width:100%!important;height:34px!important;min-height:34px!important;margin:0!important;padding:5px 28px 5px 8px!important;border:1px solid #d7e2e8!important;border-radius:9px!important;background:#fff!important;color:#18394d!important;font-size:10px!important;box-shadow:none!important}
+    #profit .v621-select-button,#profit .v621-select-menu{display:none!important}
   `;
-  document.head.appendChild(v621Style);
-
-  /* Mantiene la correccion funcional de V62: no computar hipotecas antes de iniciarse. */
-  function v621MortgageCost(m,year,month){
-    const start=(m.start||'').slice(0,7);if(!start)return 0;
-    const payment=Number(currentLoanRow(m).payment)||0;
-    if(month!=='all')return start<=`${year}-${month}`?payment:0;
-    const sy=Number(start.slice(0,4)),sm=Number(start.slice(5,7)),y=Number(year);
-    if(sy>y)return 0;
-    return payment*(sy<y?12:Math.max(0,13-sm));
+  document.head.appendChild(v180FilterStyle);
+  function v180CleanFilters(){
+    document.querySelectorAll('.v621-select-menu').forEach(x=>x.remove());
+    ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>{const e=E(id);if(!e)return;e.style.display='block';e.removeAttribute('hidden');e.nextElementSibling?.classList?.contains('v621-select-button')&&e.nextElementSibling.remove();e.onchange=renderProfit});
   }
-  const v621ProfitDataBase=profitData;
-  profitData=function(){
-    const d=v621ProfitDataBase();
-    d.rows.forEach(r=>{
-      const corrected=db.mortgages.filter(m=>m.propertyId===r.p.id).reduce((a,m)=>a+v621MortgageCost(m,d.year,d.month),0);
-      r.profit+=r.mortgages-corrected;r.mortgages=corrected;
-    });
-    return d;
-  };
-
-  let v621OpenMenu=null;
-  function v621CloseMenu(){v621OpenMenu?.remove();v621OpenMenu=null}
-  function v621UpgradeSelect(select){
-    if(!select||select.dataset.v621==='1')return;
-    select.dataset.v621='1';select.style.display='none';
-    const button=document.createElement('button');button.type='button';button.className='v621-select-button';
-    const sync=()=>button.textContent=select.selectedOptions[0]?.textContent||'';sync();
-    button.onclick=e=>{
-      e.preventDefault();e.stopPropagation();v621CloseMenu();
-      const rect=button.getBoundingClientRect();
-      const menu=document.createElement('div');menu.className='v621-select-menu';v621OpenMenu=menu;
-      [...select.options].forEach(option=>{const item=document.createElement('button');item.type='button';item.className='v621-select-option'+(option.selected?' selected':'');item.textContent=option.textContent;item.onclick=ev=>{ev.preventDefault();ev.stopPropagation();select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();v621CloseMenu()};menu.appendChild(item)});
-      document.body.appendChild(menu);
-      const h=menu.offsetHeight,w=menu.offsetWidth;
-      menu.style.left=Math.max(14,Math.min(rect.left,innerWidth-w-14))+'px';
-      menu.style.top=(rect.bottom+h+8<innerHeight?rect.bottom+5:Math.max(8,rect.top-h-5))+'px';
-    };
-    select.after(button);
-    new MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true});
-  }
-  function v621UpgradeFilters(){['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>v621UpgradeSelect(E(id)))}
-  document.addEventListener('click',v621CloseMenu);window.addEventListener('resize',v621CloseMenu);
-  function v621Cleanup(){E('profitProperties')?.querySelector('.profit-source')?.remove();v621UpgradeFilters()}
-  const v621RenderProfitBase=renderProfit;
-  renderProfit=function(){v621RenderProfitBase();v621Cleanup()};window.renderProfit=renderProfit;
-  const v621RenderAllBase=renderAll;
-  renderAll=function(){v621RenderAllBase();v621Cleanup()};
-  E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('profitProperty').onchange=renderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=renderProfit;
-  renderAll();
+  const v180FilterRenderProfit=renderProfit;
+  renderProfit=function(){v180FilterRenderProfit();v180CleanFilters()};window.renderProfit=renderProfit;
+  const v180FilterRenderAll=renderAll;
+  renderAll=function(){v180FilterRenderAll();v180CleanFilters()};
+  v180CleanFilters();
 
   /* Correccion integrada: periodos reales en Rentabilidad */
   function rentYm(value){return String(value||'').slice(0,7)}
@@ -2244,71 +2191,22 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   /* FIN V179 */
 })();
 
-/* V180: gasto anual recurrente */
-(()=>{const c=document.createElement('style');c.id='mininos-v180-expense';c.textContent=`#modal:has(.v180-expense-form){width:min(92vw,620px)}.v180-expense-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.v180-expense-form>label,.v180-expense-form>#pfDynamicFields,.v180-expense-form>details{margin:0!important}.v180-expense-form>#pfDynamicFields,.v180-expense-form>.v180-history{grid-column:1/-1}.v180-group{margin:0 0 8px;padding:9px;border:1px solid #e2e9ee;border-radius:12px;background:#f8fafc}.v180-group>b{display:block;margin-bottom:7px;font-size:11px}.v180-group>small{display:block;margin-top:6px;color:var(--mut);font-size:9px}.v180-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.v180-row.three{grid-template-columns:repeat(3,minmax(0,1fr))}.v180-history{padding:8px 10px;border:1px solid #e2e9ee;border-radius:12px;background:#fff;font-size:9px}.v180-history summary{font-weight:800;cursor:pointer}.v180-history div{padding:5px 0;border-bottom:1px solid #edf1f4}@media(max-width:560px){.v180-expense-form{grid-template-columns:1fr}.v180-row.three{grid-template-columns:repeat(2,minmax(0,1fr))}}`;document.head.appendChild(c)})();
 
 
-/* V181: interfaz compacta de Rentabilidad y selectores integrados. */
-(()=>{'use strict';
-  function mininosCompactSelect(select){
-    if(!select||select.dataset.compact181==='1')return;
-    select.dataset.compact181='1';
-    const box=document.createElement('div');box.className='compact-select181';
-    const button=document.createElement('button');button.type='button';button.className='compact-select181-button';button.setAttribute('aria-expanded','false');
-    const menu=document.createElement('div');menu.className='compact-select181-menu';menu.hidden=true;
-    select.parentNode.insertBefore(box,select);box.append(select,button,menu);select.classList.add('compact-select181-native');
-    const paint=()=>{const selected=select.options[select.selectedIndex];button.innerHTML=`<span>${selected?selected.textContent:''}</span><i>⌄</i>`;menu.innerHTML=[...select.options].map((o,i)=>`<button type="button" data-index="${i}" class="${i===select.selectedIndex?'is-selected':''}"><span>${o.textContent}</span>${i===select.selectedIndex?'<b>✓</b>':''}</button>`).join('');menu.querySelectorAll('[data-index]').forEach(item=>item.onclick=()=>{select.selectedIndex=Number(item.dataset.index);menu.hidden=true;button.setAttribute('aria-expanded','false');paint();select.dispatchEvent(new Event('change',{bubbles:true}))})};
-    button.onclick=()=>{const opening=menu.hidden;document.querySelectorAll('.compact-select181-menu').forEach(x=>x.hidden=true);document.querySelectorAll('.compact-select181-button').forEach(x=>x.setAttribute('aria-expanded','false'));menu.hidden=!opening;button.setAttribute('aria-expanded',opening?'true':'false')};
-    select.addEventListener('change',paint);paint();
-  }
-  function compactProfitFilters(){
-    const bar=E('profitYear')?.closest('.profit-toolbar');if(!bar)return;
-    bar.classList.add('profit-toolbar181');
-    ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>mininosCompactSelect(E(id)));
-  }
-  function compactExpenseModal(){const form=E('fields')?.querySelector('.v180-expense-form');if(!form)return;E('modal')?.classList.add('expense-modal181');form.querySelectorAll('select').forEach(mininosCompactSelect)}
-  const baseOpen=window.openProfitExpense||openProfitExpense;
-  window.openProfitExpense=function(id=''){baseOpen(id);requestAnimationFrame(compactExpenseModal);setTimeout(compactExpenseModal,40)};openProfitExpense=window.openProfitExpense;
-  const baseRender=window.renderProfit||renderProfit;
-  window.renderProfit=function(){const result=baseRender.apply(this,arguments);compactProfitFilters();return result};renderProfit=window.renderProfit;
-  const style=document.createElement('style');style.id='mininos-v181-compact-ui';style.textContent=`
-    #profit .profit-toolbar.profit-toolbar181{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:8px!important;margin-bottom:8px!important;border:1px solid #e2e9ee!important;border-radius:13px!important;background:#f8fafc!important}
-    #profit .profit-toolbar181>div{display:grid!important;min-width:0!important;gap:3px!important}.profit-toolbar181 label{margin:0!important;color:#607789!important;font-size:8px!important;font-weight:800!important}
-    .compact-select181{position:relative!important;display:grid!important;min-width:0!important;gap:4px!important}.compact-select181-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
-    .compact-select181-button{display:flex!important;align-items:center!important;justify-content:space-between!important;width:100%!important;min-width:0!important;height:32px!important;min-height:32px!important;margin:0!important;padding:5px 8px!important;border:1px solid #d9e4ea!important;border-radius:9px!important;background:#fff!important;color:#18394d!important;box-shadow:none!important;font-size:10px!important;font-weight:750!important;text-align:left!important}
-    .compact-select181-button span{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}.compact-select181-button i{color:#1685a0!important;font-style:normal!important;font-size:13px!important}.compact-select181-button[aria-expanded="true"]{border-color:#20a3bd!important;box-shadow:0 0 0 2px #20a3bd20!important}
-    .compact-select181-menu{position:static!important;display:grid!important;max-height:154px!important;overflow:auto!important;margin:0!important;padding:4px!important;border:1px solid #dce6eb!important;border-radius:10px!important;background:#fff!important;box-shadow:0 7px 18px #102a4318!important;z-index:auto!important}.compact-select181-menu[hidden]{display:none!important}
-    .compact-select181-menu button{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:29px!important;margin:0!important;padding:5px 7px!important;border:0!important;border-radius:7px!important;background:transparent!important;color:#27485b!important;box-shadow:none!important;font-size:9px!important;text-align:left!important}.compact-select181-menu button.is-selected{background:#e8f5f8!important;color:#087a94!important}.compact-select181-menu button b{color:#1685a0!important}
-    #modal.expense-modal181{width:min(94vw,610px)!important;padding:0!important;border-radius:17px!important}#modal.expense-modal181 #form{max-height:88dvh!important}#modal.expense-modal181 #formTitle{margin:0!important;padding:12px 14px 8px!important;font-size:15px!important}#modal.expense-modal181 #fields{display:block!important;overflow:auto!important;padding:5px 12px 10px!important}
-    #modal.expense-modal181 .v180-expense-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}#modal.expense-modal181 .v180-expense-form>label{display:grid!important;gap:3px!important;margin:0!important;padding:7px!important;border:1px solid #e4ebef!important;border-radius:10px!important;background:#fafcfd!important;font-size:8px!important;font-weight:800!important;color:#597182!important}
-    #modal.expense-modal181 .v180-expense-form>label input{height:32px!important;min-height:32px!important;margin:0!important;padding:5px 7px!important;border-radius:8px!important;background:#fff!important;font-size:10px!important}#modal.expense-modal181 #pfDynamicFields{grid-column:1/-1!important;display:grid!important;gap:7px!important}.v180-group{margin:0!important;padding:8px!important;border-radius:11px!important}.v180-group>b{font-size:10px!important}.v180-row{gap:6px!important}.v180-row label{margin:0!important;font-size:8px!important}.v180-row input{height:32px!important;min-height:32px!important;font-size:10px!important}.v180-history{margin:0!important;padding:7px 9px!important;border-radius:10px!important}.v180-history summary{font-size:9px!important}
-    #modal.expense-modal181 .actions{position:sticky!important;bottom:0!important;margin:0!important;padding:8px 12px!important;border-top:1px solid #e2e9ee!important;background:#fff!important}#modal.expense-modal181 .actions button{min-height:32px!important;padding:6px 10px!important;font-size:10px!important}
-    @media(max-width:480px){#profit .profit-toolbar.profit-toolbar181{gap:6px!important;padding:7px!important}#modal.expense-modal181 .v180-expense-form{grid-template-columns:1fr!important}#modal.expense-modal181 #pfDynamicFields{grid-column:1!important}.v180-row.three{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-  `;document.head.appendChild(style);compactProfitFilters();setTimeout(compactProfitFilters,400)
-})();
-/* FIN V181 */
-
-/* V182: correccion visual final del modal de gastos y filtros. */
-(()=>{const css=document.createElement('style');css.id='mininos-v182-final-ui';css.textContent=`
-#modal.expense-modal181{width:min(92vw,600px)!important;max-width:600px!important;max-height:88dvh!important;padding:0!important;border:0!important;border-radius:18px!important;overflow:hidden!important;background:#fff!important}
-#modal.expense-modal181 #form{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;width:100%!important;max-height:88dvh!important;padding:0!important;margin:0!important}
-#modal.expense-modal181 #formTitle{margin:0!important;padding:13px 15px 8px!important;font-size:18px!important;line-height:1.2!important;font-weight:850!important;color:#17364a!important}
-#modal.expense-modal181 #fields{display:block!important;min-height:0!important;overflow-y:auto!important;padding:4px 12px 10px!important}
-#modal.expense-modal181 .v180-expense-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
-#modal.expense-modal181 .v180-expense-form>label{display:grid!important;gap:3px!important;min-width:0!important;margin:0!important;padding:7px 8px!important;border:1px solid #e1e9ee!important;border-radius:11px!important;background:#f8fafc!important;color:#5d7383!important;font-size:9px!important;font-weight:800!important;line-height:1.2!important}
-#modal.expense-modal181 .v180-expense-form>label>input,#modal.expense-modal181 .v180-expense-form>label>select{box-sizing:border-box!important;width:100%!important;height:34px!important;min-height:34px!important;margin:0!important;padding:5px 8px!important;border:1px solid #d7e2e8!important;border-radius:9px!important;background:#fff!important;color:#16364b!important;font-size:11px!important;line-height:1.2!important;box-shadow:none!important}
-#modal.expense-modal181 #pfDynamicFields{grid-column:1/-1!important;display:grid!important;gap:7px!important;min-width:0!important}
-#modal.expense-modal181 .v180-group{display:grid!important;gap:7px!important;margin:0!important;padding:8px!important;border:1px solid #e1e9ee!important;border-radius:11px!important;background:#f8fafc!important}
-#modal.expense-modal181 .v180-group>b{margin:0!important;color:#18394d!important;font-size:11px!important;line-height:1.2!important}
-#modal.expense-modal181 .v180-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}.v180-row.three{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-#modal.expense-modal181 .v180-row label{display:grid!important;gap:3px!important;margin:0!important;color:#607789!important;font-size:8px!important;font-weight:800!important}
-#modal.expense-modal181 .v180-row input,#modal.expense-modal181 .v180-row select{box-sizing:border-box!important;width:100%!important;height:33px!important;min-height:33px!important;margin:0!important;padding:5px 7px!important;border:1px solid #d7e2e8!important;border-radius:8px!important;background:#fff!important;font-size:10px!important;box-shadow:none!important}
-#modal.expense-modal181 .v180-history{grid-column:1/-1!important;margin:0!important;padding:8px 9px!important;border:1px solid #e1e9ee!important;border-radius:10px!important;background:#fff!important}.v180-history summary{font-size:9px!important;font-weight:850!important}
-#modal.expense-modal181 .compact-select181{width:100%!important;min-width:0!important}.compact-select181-button{height:34px!important;min-height:34px!important;padding:5px 8px!important;border:1px solid #d7e2e8!important;border-radius:9px!important;background:#fff!important;font-size:10px!important;box-shadow:none!important}.compact-select181-menu{position:static!important;max-height:132px!important;margin-top:3px!important;padding:3px!important;border-radius:9px!important;box-shadow:none!important}.compact-select181-menu button{min-height:27px!important;padding:4px 6px!important;font-size:9px!important}
-#modal.expense-modal181 .actions{position:sticky!important;bottom:0!important;z-index:2!important;display:flex!important;justify-content:flex-end!important;gap:7px!important;margin:0!important;padding:8px 12px!important;border-top:1px solid #e1e9ee!important;background:#fff!important}.expense-modal181 .actions button{min-height:32px!important;margin:0!important;padding:6px 11px!important;border-radius:9px!important;font-size:10px!important}
-#profit .profit-toolbar.profit-toolbar181{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:7px!important}.profit-toolbar181 .compact-select181-button{height:31px!important;min-height:31px!important;font-size:9px!important}.profit-toolbar181 .compact-select181-menu{max-height:120px!important}
-@media(max-width:520px){#modal.expense-modal181{width:94vw!important;max-height:90dvh!important}#modal.expense-modal181 #formTitle{font-size:17px!important;padding:12px 13px 7px!important}#modal.expense-modal181 #fields{padding:4px 10px 9px!important}#modal.expense-modal181 .v180-expense-form{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}#modal.expense-modal181 .v180-expense-form>label{padding:6px!important}.v180-row.three{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-`;document.head.appendChild(css);
-const upgrade=()=>{const form=E('fields')?.querySelector('.v180-expense-form');if(!form)return;E('modal')?.classList.add('expense-modal181');form.querySelectorAll('select').forEach(s=>{if(s.dataset.compact181!=='1'&&typeof mininosCompactSelect==='function')mininosCompactSelect(s)})};
-new MutationObserver(()=>{upgrade()}).observe(E('modal'),{subtree:true,childList:true});setTimeout(upgrade,0)})();
-/* FIN V182 */
+/* V180: formulario anual integrado y compacto */
+(()=>{const c=document.createElement('style');c.id='mininos-v180-clean-form';c.textContent=`
+#modal #fields>.v180-expense-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+#modal:has(#fields>.v180-expense-form){width:min(94vw,610px)!important;max-width:610px!important;max-height:90dvh!important;padding:0!important;border-radius:18px!important;overflow:hidden!important}
+#modal:has(#fields>.v180-expense-form) #form{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;max-height:90dvh!important;padding:0!important}
+#modal:has(#fields>.v180-expense-form) #formTitle{margin:0!important;padding:13px 14px 8px!important;font-size:18px!important;line-height:1.2!important}
+#modal:has(#fields>.v180-expense-form) #fields{display:block!important;overflow-y:auto!important;min-height:0!important;padding:4px 12px 10px!important}
+#modal #fields>.v180-expense-form>label{display:grid!important;gap:3px!important;min-width:0!important;margin:0!important;padding:7px!important;border:1px solid #e1e9ee!important;border-radius:10px!important;background:#f8fafc!important;color:#607789!important;font-size:9px!important;font-weight:800!important}
+#modal #fields>.v180-expense-form>label input,#modal #fields>.v180-expense-form>label select{box-sizing:border-box!important;width:100%!important;height:34px!important;min-height:34px!important;margin:0!important;padding:5px 8px!important;border:1px solid #d7e2e8!important;border-radius:8px!important;background:#fff!important;color:#17384c!important;font-size:11px!important;box-shadow:none!important}
+#modal #fields>.v180-expense-form>#pfDynamicFields{grid-column:1/-1!important;display:grid!important;gap:7px!important}
+#modal .v180-group{display:grid!important;gap:7px!important;margin:0!important;padding:8px!important;border:1px solid #e1e9ee!important;border-radius:11px!important;background:#f8fafc!important}
+#modal .v180-group>b{margin:0!important;font-size:11px!important;color:#17384c!important}.v180-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}.v180-row.three{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#modal .v180-row label{display:grid!important;gap:3px!important;margin:0!important;color:#607789!important;font-size:8px!important;font-weight:800!important}#modal .v180-row input,#modal .v180-row select{box-sizing:border-box!important;width:100%!important;height:33px!important;min-height:33px!important;margin:0!important;padding:5px 7px!important;border:1px solid #d7e2e8!important;border-radius:8px!important;background:#fff!important;font-size:10px!important;box-shadow:none!important}
+#modal .v180-history{grid-column:1/-1!important;margin:0!important;padding:8px 9px!important;border:1px solid #e1e9ee!important;border-radius:10px!important;background:#fff!important;font-size:9px!important}#modal .v180-history summary{font-weight:850!important}
+#modal:has(#fields>.v180-expense-form) .actions{position:sticky!important;bottom:0!important;display:flex!important;justify-content:flex-end!important;gap:7px!important;margin:0!important;padding:8px 12px!important;border-top:1px solid #e1e9ee!important;background:#fff!important}#modal:has(#fields>.v180-expense-form) .actions button{min-height:32px!important;margin:0!important;padding:6px 11px!important;border-radius:9px!important;font-size:10px!important}
+@media(max-width:520px){#modal #fields>.v180-expense-form{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}.v180-row.three{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+`;document.head.appendChild(c)})();
