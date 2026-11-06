@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v183';
+window.MININOS_APP_VERSION='v179';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -705,35 +705,18 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
 
   const expenseTypes=['Comunidad','Seguro','Reparación y conservación','Suministros','Gestoría','Impuestos y tasas','Intereses hipotecarios','Amortización fiscal','Otro'];
   function v13ExpenseActive(x,year,month){const point=`${year}-${month}`,start=(x.start||x.date||'').slice(0,7),end=(x.end||'').slice(0,7);if(x.active===false||(start&&point<start)||(end&&point>end))return false;if(x.frequency==='once')return (x.date||'').slice(0,7)===point;return true}
-  function v13ExpenseMonthValue(x,year,month){if(!v13ExpenseActive(x,year,month))return 0;const a=x.frequency==='annual'&&x.annualDay?v183Value(x,year):(Number(x.amount)||0);if(x.frequency==='annual')return a/12;if(x.frequency==='semiannual')return a/6;if(x.frequency==='quarterly')return a/3;if(x.frequency==='monthly')return a;return a}
+  function v13ExpenseMonthValue(x,year,month){if(!v13ExpenseActive(x,year,month))return 0;const a=Number(x.amount)||0;if(x.frequency==='annual')return a/12;if(x.frequency==='semiannual')return a/6;if(x.frequency==='quarterly')return a/3;if(x.frequency==='monthly')return a;return a}
   function v13ExpensePeriodValue(x,year,month){if(month!=='all')return v13ExpenseMonthValue(x,year,month);return Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0')).reduce((a,m)=>a+v13ExpenseMonthValue(x,year,m),0)}
   manualCostsFor=function(propertyId,year,annual){const m=annual?'all':E('profitMonth').value;return db.profitExpenses.filter(x=>x.propertyId===propertyId&&!v103AnnualTax(x)).reduce((a,x)=>a+v13ExpensePeriodValue(x,year,m),0)};
   paLines=function(r,d){const out=[],add=(n,v)=>{if(Math.abs(v)>.005)out.push(`<div class="profit-line"><span>${safe(n)}</span><b>${money(v)}</b></div>`)};add('Comunidad',(Number(r.p.community)||0)*(d.annual?12:1));add('IBI',(Number(r.p.ibi)||0)/(d.annual?1:12));add('Tasa de basura',(Number(r.p.wasteTax)||0)/(d.annual?1:12));db.profitExpenses.filter(x=>x.propertyId===r.p.id&&!v103AnnualTax(x)).forEach(x=>add(`${x.category||'Otro'} · ${x.concept}`,v13ExpensePeriodValue(x,d.year,d.month)));return out.join('')||'<span class="muted">No hay gastos para este periodo.</span>'};
 
-  const v183Months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const v183History=x=>Array.isArray(x?.annualPayments)?x.annualPayments:[];
-  const v183Date=(x,y)=>`${y}-${String(Number(x.annualMonth)||1).padStart(2,'0')}-${String(Number(x.annualDay)||1).padStart(2,'0')}`;
-  const v183Value=(x,y)=>{const e=v183History(x).find(v=>String(v.year)===String(y));if(e)return Number(e.amount)||0;if(String(x.nextPaymentYear)===String(y))return Number(x.nextAmount)||0;const p=v183History(x).filter(v=>Number(v.year)<=Number(y)).sort((a,b)=>Number(b.year)-Number(a.year))[0];return Number(p?.amount??x.amount)||0};
   openProfitExpense=function(id=''){
     if(viewer())return alert('Este dispositivo está en modo solo lectura.');if(!db.properties.length)return alert('Primero añade un piso.');
-    const x=db.profitExpenses.find(v=>v.id===id)||{},legacy=String(x.date||x.start||today()),legacyYear=Number(legacy.slice(0,4))||new Date().getFullYear(),day=Number(x.annualDay)||Number(legacy.slice(8,10))||13,month=Number(x.annualMonth)||Number(legacy.slice(5,7))||11,h=v183History(x),last=h.slice().sort((a,b)=>Number(b.year)-Number(a.year))[0],now=new Date(),candidate=new Date(now.getFullYear(),month-1,day,12),nextYear=Number(x.nextPaymentYear)||(candidate<now?now.getFullYear()+1:now.getFullYear());
-    const html=`<div class="expense183"><section class="expense183-card identity"><b>Datos del gasto</b><div class="expense183-grid two">${select('Piso','pfProperty',pOpts(),x.propertyId||db.properties[0].id)}${select('Tipo','pfCategory',expenseTypes.map(v=>[v,v]),x.category||'Otro')}</div>${field('Concepto / proveedor','pfConcept','text',x.concept,'required')}</section><section class="expense183-card frequency"><b>Periodicidad</b>${select('Frecuencia','pfFrequency',[['monthly','Mensual'],['quarterly','Trimestral'],['semiannual','Semestral'],['annual','Anual'],['once','Pago único']],x.frequency||'monthly')}</section><div id="pfDynamicFields"></div><section class="expense183-card settings"><b>Configuración</b><div class="expense183-grid three">${select('Aviso','pfAlert',[['no','No'],['yes','Sí']],x.alert?'yes':'no')}${select('Deducible','pfDeductible',[['no','No'],['yes','Sí']],x.deductible?'yes':'no')}${select('Estado','pfActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')}</div>${field('Observaciones','pfNotes','text',x.notes)}</section></div>`;
-    modal('Gasto de rentabilidad',html,()=>{const frequency=E('pfFrequency').value,item={...x,id:x.id||uid(),legacyFiscalId:x.legacyFiscalId,propertyId:E('pfProperty').value,category:E('pfCategory').value,concept:E('pfConcept').value,frequency,alert:E('pfAlert').value==='yes',deductible:E('pfDeductible').value==='yes',active:E('pfActive').value==='yes',notes:E('pfNotes').value};if(frequency==='annual'){item.annualDay=Math.max(1,Math.min(31,Number(E('pfAnnualDay').value)||1));item.annualMonth=Math.max(1,Math.min(12,Number(E('pfAnnualMonth').value)||1));const y=Number(E('pfLastYear').value),a=Number(E('pfLastAmount').value)||0,nY=Number(E('pfNextYear').value),nA=Number(E('pfNextAmount').value)||0;item.annualPayments=v183History(x).filter(v=>String(v.year)!==String(y));item.annualPayments.push({year:y,date:v183Date(item,y),amount:a,status:'paid'});item.annualPayments.sort((a,b)=>Number(a.year)-Number(b.year));item.amount=nA;item.nextAmount=nA;item.nextPaymentYear=nY;item.nextPaymentDate=v183Date(item,nY);item.date=v183Date(item,y);item.start=item.start||item.date;item.end=item.nextPaymentDate}else{item.amount=Number(E('pfAmount').value)||0;item.date=E('pfDate')?.value||'';item.start=E('pfStart')?.value||'';item.end=E('pfEnd')?.value||'';['annualDay','annualMonth','annualPayments','nextAmount','nextPaymentYear','nextPaymentDate'].forEach(k=>delete item[k])}const i=db.profitExpenses.findIndex(v=>v.id===item.id);i<0?db.profitExpenses.push(item):db.profitExpenses[i]=item;persist()});
-    const f=E('pfFrequency'),host=E('pfDynamicFields'),draw=()=>{if(f.value==='annual'){host.innerHTML=`<section class="expense183-card annual-calendar"><b>Calendario anual</b><div class="expense183-grid two">${field('Día','pfAnnualDay','number',day,'min="1" max="31" required')}${select('Mes','pfAnnualMonth',v183Months.map((m,i)=>[String(i+1),m]),String(month))}</div></section><section class="expense183-card annual-amounts"><b>Importes por ejercicio</b><div class="expense183-grid three">${field('Último año','pfLastYear','number',last?.year||legacyYear,'required')}${field('Último pago (€)','pfLastAmount','number',last?.amount??x.amount,'min="0" step=".01" required')}${field('Próximo pago (€)','pfNextAmount','number',x.nextAmount??x.amount,'min="0" step=".01" required')}</div><input id="pfNextYear" type="hidden" value="${nextYear}"><small>Próximo vencimiento: <strong id="pfNextDateText"></strong></small></section><details class="expense183-history"><summary>Historial · ${h.length}</summary>${h.length?h.slice().sort((a,b)=>Number(b.year)-Number(a.year)).map(v=>`<div><span>${v.year}</span><span>${fmt(v.date||v183Date({annualDay:day,annualMonth:month},v.year))}</span><b>${money(v.amount)}</b></div>`).join(''):'<p class="muted">Se creará al guardar.</p>'}</details>`;const sync=()=>E('pfNextDateText').textContent=fmt(`${E('pfNextYear').value}-${String(Number(E('pfAnnualMonth').value)).padStart(2,'0')}-${String(Number(E('pfAnnualDay').value)).padStart(2,'0')}`);E('pfAnnualDay').oninput=sync;E('pfAnnualMonth').onchange=sync;sync()}else if(f.value==='once')host.innerHTML=`<section class="expense183-card"><div class="expense183-grid two">${field('Fecha','pfDate','date',x.date||today(),'required')}${field('Importe (€)','pfAmount','number',x.amount,'min="0" step=".01" required')}</div></section>`;else host.innerHTML=`<section class="expense183-card"><div class="expense183-grid three">${field('Importe (€)','pfAmount','number',x.amount,'min="0" step=".01" required')}${field('Inicio','pfStart','date',x.start||today())}${field('Finalización','pfEnd','date',x.end)}</div></section>`};f.onchange=draw;draw();
+    const x=db.profitExpenses.find(v=>v.id===id)||{};
+    const html=select('Piso','pfProperty',pOpts(),x.propertyId||db.properties[0].id)+select('Tipo de gasto','pfCategory',expenseTypes.map(v=>[v,v]),x.category||'Otro')+field('Concepto / proveedor','pfConcept','text',x.concept,'required')+field('Importe (€)','pfAmount','number',x.amount,'required min="0" step=".01"')+select('Periodicidad','pfFrequency',[['monthly','Mensual'],['quarterly','Trimestral'],['semiannual','Semestral'],['annual','Anual'],['once','Pago único']],x.frequency||'monthly')+field('Fecha del pago único','pfDate','date',x.date)+field('Fecha de inicio','pfStart','date',x.start)+field('Fecha de finalización / vencimiento','pfEnd','date',x.end)+select('Aviso','pfAlert',[['no','No'],['yes','Sí']],x.alert?'yes':'no')+select('Deducible fiscalmente','pfDeductible',[['no','No'],['yes','Sí']],x.deductible?'yes':'no')+select('Estado','pfActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')+field('Observaciones / justificante','pfNotes','text',x.notes);
+    modal('Gasto de rentabilidad',html,()=>{const item={id:x.id||uid(),legacyFiscalId:x.legacyFiscalId,propertyId:E('pfProperty').value,category:E('pfCategory').value,concept:E('pfConcept').value,amount:+E('pfAmount').value,frequency:E('pfFrequency').value,date:E('pfDate').value,start:E('pfStart').value,end:E('pfEnd').value,alert:E('pfAlert').value==='yes',deductible:E('pfDeductible').value==='yes',active:E('pfActive').value==='yes',notes:E('pfNotes').value};const i=db.profitExpenses.findIndex(v=>v.id===item.id);i<0?db.profitExpenses.push(item):db.profitExpenses[i]=item;persist()});
   };window.openProfitExpense=openProfitExpense;
   showProfitExpense=function(id){const x=db.profitExpenses.find(v=>v.id===id);if(!x)return;const f={monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||x.frequency;showDetail('📊',x.concept,getProp(x.propertyId)?.name||'',detailCell('Tipo',safe(x.category))+detailCell('Importe',money(x.amount))+detailCell('Periodicidad',f)+detailCell('Equivalente mensual',money(x.frequency==='annual'?(Number(x.amount)||0)/12:expenseMonthly(x)))+detailCell('Inicio',fmt(x.start))+detailCell('Vencimiento',fmt(x.end))+detailCell('Aviso',x.alert?'Sí':'No')+detailCell('Deducible',x.deductible?'Sí':'No')+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();openProfitExpense('${id}')`))};window.showProfitExpense=showProfitExpense;
-
-
-  /* V183: Rentabilidad consolidada, sin parches posteriores */
-  const v183Style=document.createElement('style');
-  v183Style.textContent=`
-    #profit .profit-toolbar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:7px!important;border:1px solid #e2e9ee!important;border-radius:13px!important;background:#f8fafc!important}
-    #profit .profit-toolbar>div{display:grid!important;grid-template-columns:1fr!important;gap:3px!important;min-width:0!important}#profit .profit-toolbar label{margin:0!important;color:#607789!important;font-size:8px!important;font-weight:800!important}#profit .profit-toolbar select{display:block!important;position:static!important;width:100%!important;height:33px!important;min-height:33px!important;margin:0!important;padding:5px 8px!important;border:1px solid #d7e2e8!important;border-radius:9px!important;background:#fff!important;color:#17384c!important;font-size:10px!important;box-shadow:none!important}
-    #modal:has(.expense183){width:min(94vw,610px)!important;max-height:90dvh!important;padding:0!important;border-radius:18px!important;overflow:hidden!important}#modal:has(.expense183) #form{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;max-height:90dvh!important;padding:0!important}#modal:has(.expense183) #formTitle{margin:0!important;padding:12px 14px 7px!important;font-size:17px!important}#modal:has(.expense183) #fields{display:block!important;min-height:0!important;overflow-y:auto!important;padding:4px 11px 9px!important}
-    .expense183{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.expense183-card{display:grid!important;gap:6px!important;padding:8px!important;border:1px solid #e1e9ee!important;border-radius:11px!important;background:#f8fafc!important}.expense183-card>b{color:#17384c!important;font-size:10px!important}.expense183-card label{display:grid!important;gap:3px!important;margin:0!important;color:#607789!important;font-size:8px!important;font-weight:800!important}.expense183-card input,.expense183-card select{box-sizing:border-box!important;width:100%!important;height:33px!important;min-height:33px!important;margin:0!important;padding:5px 7px!important;border:1px solid #d7e2e8!important;border-radius:8px!important;background:#fff!important;color:#17384c!important;font-size:10px!important;box-shadow:none!important}.expense183-grid{display:grid!important;gap:6px!important}.expense183-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))!important}.expense183-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))!important}#pfDynamicFields{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.expense183-history{grid-column:1/-1!important;margin:0!important;padding:8px!important;border:1px solid #e1e9ee!important;border-radius:10px!important;background:#fff!important;font-size:9px!important}.expense183-history summary{font-weight:850!important}.expense183-history>div{display:grid!important;grid-template-columns:42px 1fr auto!important;gap:6px!important;padding:5px 0!important;border-bottom:1px solid #edf1f4!important}.expense183-card small{color:#607789!important;font-size:8px!important}
-    #modal:has(.expense183) .actions{position:sticky!important;bottom:0!important;display:flex!important;justify-content:flex-end!important;gap:7px!important;margin:0!important;padding:8px 11px!important;border-top:1px solid #e1e9ee!important;background:#fff!important}#modal:has(.expense183) .actions button{min-height:32px!important;margin:0!important;padding:6px 10px!important;border-radius:9px!important;font-size:10px!important}
-    @media(max-width:520px){.expense183{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}#pfDynamicFields{grid-template-columns:1fr!important}.expense183-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-  `;document.head.appendChild(v183Style);
 
   /* Selector de inmueble y retirada de Fiscalidad. */
   const toolbar=E('profitYear')?.closest('.profit-toolbar');
@@ -913,6 +896,79 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   E('paymentPropertyFilter').onchange=modernPayments;E('paymentMonthFilter').onchange=modernPayments;E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('profitProperty').onchange=renderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=renderProfit;
   renderAll();
 
+
+  /* V62.1: tres ajustes finales sobre la funcionalidad de V62 */
+  const v621Style=document.createElement('style');
+  v621Style.textContent=`
+    /* 1. Tick de Cobros un poco mas a la derecha, sin alterar la tarjeta */
+    #paymentList .modern-actions{transform:translateX(14px)!important}
+    /* 2. Cinco KPI de Inicio mas compactos */
+    #metrics{gap:7px!important}
+    #metrics .card{padding:9px 10px!important;margin-bottom:0!important;border-radius:14px!important}
+    #metrics .metric b{font-size:14px!important;line-height:1.15!important;margin-top:2px!important}
+    #metrics .muted{font-size:10px!important;line-height:1.15!important}
+    /* Se conserva exactamente el aspecto cerrado de los filtros de V62 */
+    #profit .profit-toolbar{display:grid!important;grid-template-columns:1fr!important;gap:6px!important}
+    #profit .profit-toolbar>div{display:grid!important;grid-template-columns:88px minmax(0,1fr)!important;align-items:center!important;gap:8px!important}
+    #profit .profit-toolbar label{margin:0!important;font-size:12px!important;font-weight:700!important}
+    /* Lista abierta personalizada, compacta y controlada por la app */
+    .v621-select-button{width:100%;padding:7px 34px 7px 10px;min-height:34px;border:1px solid #ccd6dd;border-radius:9px;background:#fff;color:var(--txt);font:inherit;text-align:left;position:relative;box-shadow:none}
+    .v621-select-button:after{content:'⌄';position:absolute;right:10px;color:var(--mut)}
+    .v621-select-menu{position:fixed;z-index:9999;width:min(250px,calc(100vw - 28px));max-height:min(520px,calc(100vh - 16px));overflow:auto;padding:3px;background:#fff;border:1px solid #dbe4ea;border-radius:13px;box-shadow:0 18px 48px #102a4340}
+    .v621-select-option{display:block;width:100%;padding:5px 9px;border:0;border-radius:8px;background:#fff;color:var(--txt);font:500 12px system-ui;text-align:left;box-shadow:none}
+    .v621-select-option.selected{background:#e8f4f8;color:#0f6f8c;font-weight:800}
+    #profitProperties .profit-source{display:none!important}
+  `;
+  document.head.appendChild(v621Style);
+
+  /* Mantiene la correccion funcional de V62: no computar hipotecas antes de iniciarse. */
+  function v621MortgageCost(m,year,month){
+    const start=(m.start||'').slice(0,7);if(!start)return 0;
+    const payment=Number(currentLoanRow(m).payment)||0;
+    if(month!=='all')return start<=`${year}-${month}`?payment:0;
+    const sy=Number(start.slice(0,4)),sm=Number(start.slice(5,7)),y=Number(year);
+    if(sy>y)return 0;
+    return payment*(sy<y?12:Math.max(0,13-sm));
+  }
+  const v621ProfitDataBase=profitData;
+  profitData=function(){
+    const d=v621ProfitDataBase();
+    d.rows.forEach(r=>{
+      const corrected=db.mortgages.filter(m=>m.propertyId===r.p.id).reduce((a,m)=>a+v621MortgageCost(m,d.year,d.month),0);
+      r.profit+=r.mortgages-corrected;r.mortgages=corrected;
+    });
+    return d;
+  };
+
+  let v621OpenMenu=null;
+  function v621CloseMenu(){v621OpenMenu?.remove();v621OpenMenu=null}
+  function v621UpgradeSelect(select){
+    if(!select||select.dataset.v621==='1')return;
+    select.dataset.v621='1';select.style.display='none';
+    const button=document.createElement('button');button.type='button';button.className='v621-select-button';
+    const sync=()=>button.textContent=select.selectedOptions[0]?.textContent||'';sync();
+    button.onclick=e=>{
+      e.preventDefault();e.stopPropagation();v621CloseMenu();
+      const rect=button.getBoundingClientRect();
+      const menu=document.createElement('div');menu.className='v621-select-menu';v621OpenMenu=menu;
+      [...select.options].forEach(option=>{const item=document.createElement('button');item.type='button';item.className='v621-select-option'+(option.selected?' selected':'');item.textContent=option.textContent;item.onclick=ev=>{ev.preventDefault();ev.stopPropagation();select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();v621CloseMenu()};menu.appendChild(item)});
+      document.body.appendChild(menu);
+      const h=menu.offsetHeight,w=menu.offsetWidth;
+      menu.style.left=Math.max(14,Math.min(rect.left,innerWidth-w-14))+'px';
+      menu.style.top=(rect.bottom+h+8<innerHeight?rect.bottom+5:Math.max(8,rect.top-h-5))+'px';
+    };
+    select.after(button);
+    new MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true});
+  }
+  function v621UpgradeFilters(){['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>v621UpgradeSelect(E(id)))}
+  document.addEventListener('click',v621CloseMenu);window.addEventListener('resize',v621CloseMenu);
+  function v621Cleanup(){E('profitProperties')?.querySelector('.profit-source')?.remove();v621UpgradeFilters()}
+  const v621RenderProfitBase=renderProfit;
+  renderProfit=function(){v621RenderProfitBase();v621Cleanup()};window.renderProfit=renderProfit;
+  const v621RenderAllBase=renderAll;
+  renderAll=function(){v621RenderAllBase();v621Cleanup()};
+  E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('profitProperty').onchange=renderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=renderProfit;
+  renderAll();
 
   /* Correccion integrada: periodos reales en Rentabilidad */
   function rentYm(value){return String(value||'').slice(0,7)}
