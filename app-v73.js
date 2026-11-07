@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v186';
+window.MININOS_APP_VERSION='v179';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -106,7 +106,7 @@ window.addEventListener('load',function MININOS_V138(){
   const receiptKey=(id,label,year=YEAR)=>`expense:${historyId(id,label,year)}`;
   const store=()=>{db.receiptFiles=db.receiptFiles&&typeof db.receiptFiles==='object'?db.receiptFiles:{};return db.receiptFiles};
   function save(){localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem('mininos-local-updated',new Date().toISOString());if(typeof scheduleAutoUpload==='function')scheduleAutoUpload()}
-  function refreshAll(){if(typeof legacyCoreRenderProfit==='function')legacyCoreRenderProfit();if(typeof renderHistoricalExpenses==='function')renderHistoricalExpenses();renderAll()}
+  function refreshAll(){if(typeof renderProfit==='function')renderProfit();if(typeof renderHistoricalExpenses==='function')renderHistoricalExpenses();renderAll()}
   function reopen(id=currentPropertyId){refreshAll();requestAnimationFrame(()=>{if(currentExpenseId&&typeof showHistoricalExpense==='function')showHistoricalExpense(currentExpenseId);else if(id)showProperty(id)})}
   function version(){const h=document.querySelector('header h1');if(!h)return;h.querySelectorAll('.mininos-header-version,.mininos-version-badge').forEach(x=>x.remove());const b=document.createElement('small');b.className='mininos-header-version';b.textContent=VERSION;h.appendChild(b);document.title='Gestión Alquiler Mininos '+VERSION}
   function ask(title,text,ok='Aceptar'){
@@ -131,8 +131,8 @@ window.addEventListener('load',function MININOS_V138(){
   const title=c=>(c?.querySelector(':scope > span')?.textContent||'').trim();
   function rebuild(id){currentPropertyId=id;const g=document.querySelector('#detailBody .detail-grid'),p=prop(id);if(!g||!p)return;[...g.children].forEach(c=>{const t=title(c);if(c.matches('.tax103,.tax102,.tax101,.tax100,.tax99-card,.tax94-card,.tax93-card,.tax83-card,.tax83')||['IBI anual','Fecha IBI','Tasa de basura','Fecha basura'].includes(t)||/^(IBI|Tasa de basura)\s+\d{4}(\s*·\s*justificante)?$/.test(t))c.remove()});const anchor=[...g.children].find(c=>title(c)==='Contrato activo');const ibi=card(p,'IBI'),waste=card(p,'Tasa de basura');anchor?anchor.after(ibi,waste):g.prepend(ibi,waste)}
   const baseShow=window.showProperty||showProperty;window.showProperty=showProperty=function(id){const r=baseShow(id);requestAnimationFrame(()=>rebuild(id));setTimeout(()=>rebuild(id),100);version();return r};
-  const baseExpense=window.legacyCoreShowProfitExpense||legacyCoreShowProfitExpense;window.legacyCoreShowProfitExpense=legacyCoreShowProfitExpense=function(id){currentExpenseId=id;currentPropertyId='';return baseExpense(id)};
-  window.legacyCoreDeleteProfitExpense=legacyCoreDeleteProfitExpense=async function(id){if(typeof viewer==='function'&&isViewer())return;const x=(db.profitExpenses||[]).find(v=>v.id===id);if(!x)return;if(!await ask('Eliminar gasto',`¿Eliminar ${x.concept||'este gasto'}?`,'Eliminar'))return;db.profitExpenses=db.profitExpenses.filter(v=>v.id!==id);const label=x.taxLabel||(String(x.concept||'').match(/^IBI\b/i)?'IBI':(/^Tasa(?: de)? basura\b/i.test(String(x.concept||''))?'Tasa de basura':''));if(label){const p=prop(x.propertyId),f=field(label),year=String(x.taxYear||YEAR);if(p?.[f])delete p[f][year];delete store()[receiptKey(x.propertyId,label,year)]}save();refreshAll()};
+  const baseExpense=window.showProfitExpense||showProfitExpense;window.showProfitExpense=showProfitExpense=function(id){currentExpenseId=id;currentPropertyId='';return baseExpense(id)};
+  window.deleteProfitExpense=deleteProfitExpense=async function(id){if(typeof viewer==='function'&&isViewer())return;const x=(db.profitExpenses||[]).find(v=>v.id===id);if(!x)return;if(!await ask('Eliminar gasto',`¿Eliminar ${x.concept||'este gasto'}?`,'Eliminar'))return;db.profitExpenses=db.profitExpenses.filter(v=>v.id!==id);const label=x.taxLabel||(String(x.concept||'').match(/^IBI\b/i)?'IBI':(/^Tasa(?: de)? basura\b/i.test(String(x.concept||''))?'Tasa de basura':''));if(label){const p=prop(x.propertyId),f=field(label),year=String(x.taxYear||YEAR);if(p?.[f])delete p[f][year];delete store()[receiptKey(x.propertyId,label,year)]}save();refreshAll()};
   const css=document.createElement('style');css.textContent=`
   #detailModal .tax103{display:grid!important;gap:8px!important;padding:11px 12px!important;border-radius:11px!important;background:#f7f9fb!important}
   .tax103top{display:grid!important;grid-template-columns:minmax(80px,1.15fr) minmax(90px,.85fr) minmax(115px,1.25fr)!important;align-items:center!important;gap:10px!important}
@@ -210,7 +210,7 @@ nav button.on{background:linear-gradient(135deg,#0f6f8c,#2457d6);color:#fff;box-
 </style></head><body><h1>Comprobante de Pago de Alquiler</h1><p><b>Arrendador:</b> Óscar Sánchez Martín</p><p><b>Arrendatario:</b> ${esc(c?.tenant)}</p><p><b>Dirección del inmueble:</b> ${esc(p?.address||p?.name)}</p><p><b>Importe del pago:</b> ${euro(x.amount)}</p><p><b>Fecha del pago:</b> ${fmt(x.date)}</p><p><b>Periodo que cubre el pago:</b> ${period}</p><p><b>Método de pago:</b> ${esc(x.method||'Transferencia')}</p><p style="margin-top:38px">Firma del arrendador</p><img class="sig" src="${SIGNATURE}"><p><button onclick="window.print()">Guardar o imprimir en PDF</button></p></body></html>`);w.document.close();setTimeout(()=>w.print(),400)}
 function toggleMonthlyPayment(contractId,month){const existing=db.payments.find(x=>x.contractId===contractId&&x.month===month);if(existing){if(confirm('¿Desmarcar este cobro? Se eliminará su fecha registrada.')){db.payments=db.payments.filter(x=>x.id!==existing.id);persist()}}else{const c=con(contractId);upsert('payments',{id:uid(),contractId,month,date:today(),amount:+c.rent,status:'pagado',method:'Transferencia',notes:''})}}
 function renderPayments(){refreshPaymentFilters();const p=E('paymentPropertyFilter').value,m=E('paymentMonthFilter').value;const active=db.contracts.filter(c=>(p==='all'||c.propertyId===p)&&(!c.start||c.start.slice(0,7)<=m)&&(!c.end||c.end.slice(0,7)>=m));const received=active.reduce((a,c)=>a+(db.payments.find(x=>x.contractId===c.id&&x.month===m)?.amount||0),0),expected=active.reduce((a,c)=>a+(+c.rent||0),0);E('paymentFilterTotals').innerHTML=`Cobrado: <b>${euro(received)}</b> · Pendiente: <b>${euro(Math.max(0,expected-received))}</b>`;E('paymentList').innerHTML=active.length?active.map(c=>{const x=db.payments.find(v=>v.contractId===c.id&&v.month===m),checked=!!x;return `<div class="card"><div class="row"><label style="display:flex;align-items:center;gap:12px;margin:0;flex:1;cursor:pointer"><input type="checkbox" style="width:24px;height:24px" ${checked?'checked':''} onchange="toggleMonthlyPayment('${c.id}','${m}')"><div><b>${esc(prop(c.propertyId)?.name)}</b><div class="muted">${esc(c.tenant)}${c.rentBank?' · '+esc(c.rentBank):''}</div></div></label><b>${euro(c.rent)}</b></div>${checked?`<p class="positive">Cobrado el <b>${fmt(x.date)}</b></p><button class="secondary" onclick="openPayment('${x.id}')">Editar detalles</button> <button onclick="receipt(db.payments.find(v=>v.id==='${x.id}'))">Generar comprobante PDF</button>`:'<p class="muted">Pendiente de cobro</p>'}</div>`}).join(''):'<div class="card empty">No hay contratos activos con estos filtros</div>'}
-function legacyCoreRenderMortgages(){E('mortgageList').innerHTML=db.mortgages.length?db.mortgages.map(x=>{const bal=balanceAt(x),am=x.principal-bal,pct=x.principal?am/x.principal*100:0;return`<div class="card"><div class="row"><div><b>${esc(x.bank)} · ${esc(prop(x.propertyId)?.name)}</b><div class="muted">${x.rate}% · ${x.years} años</div></div><b>${euro(bal)}</b></div><p>Inicial: ${euro(x.principal)} · Amortizado: <b>${euro(am)}</b> (${pct.toFixed(1)}%) · Cuota teórica: ${euro(loan(x).pay)}</p><div class="card-actions-stack mortgage-actions-stack"><button onclick="showAmort('${x.id}')">Ver tabla</button><button class="secondary" onclick="openMortgage('${x.id}')">Editar</button><button class="danger" onclick="del('mortgages','${x.id}')">Eliminar</button></div></div>`}).join(''):'<div class="card empty">No hay hipotecas</div>'}
+function renderMortgages(){E('mortgageList').innerHTML=db.mortgages.length?db.mortgages.map(x=>{const bal=balanceAt(x),am=x.principal-bal,pct=x.principal?am/x.principal*100:0;return`<div class="card"><div class="row"><div><b>${esc(x.bank)} · ${esc(prop(x.propertyId)?.name)}</b><div class="muted">${x.rate}% · ${x.years} años</div></div><b>${euro(bal)}</b></div><p>Inicial: ${euro(x.principal)} · Amortizado: <b>${euro(am)}</b> (${pct.toFixed(1)}%) · Cuota teórica: ${euro(loan(x).pay)}</p><div class="card-actions-stack mortgage-actions-stack"><button onclick="showAmort('${x.id}')">Ver tabla</button><button class="secondary" onclick="openMortgage('${x.id}')">Editar</button><button class="danger" onclick="del('mortgages','${x.id}')">Eliminar</button></div></div>`}).join(''):'<div class="card empty">No hay hipotecas</div>'}
 function showAmort(id){const m=db.mortgages.find(x=>x.id===id),c=loan(m),groups={};c.rows.forEach(r=>{const y=r.date.slice(0,4);if(!groups[y])groups[y]={payment:0,interest:0,capital:0,balance:r.balance};groups[y].payment+=r.payment;groups[y].interest+=r.interest;groups[y].capital+=r.capital;groups[y].balance=r.balance});E('amortization').innerHTML=`<div class="card"><h3>${esc(m.bank)} · amortización anual</h3><div class="scroll"><table><thead><tr><th>Año</th><th>Cuotas del año</th><th>Intereses del año</th><th>Capital del año</th><th>Pendiente fin de año</th></tr></thead><tbody>${Object.entries(groups).map(([y,r])=>`<tr><td>${y}</td><td>${euro(r.payment)}</td><td>${euro(r.interest)}</td><td>${euro(r.capital)}</td><td>${euro(r.balance)}</td></tr>`).join('')}</tbody></table></div></div>`}
 function refreshFiscalFilters(){const py=E('fiscalYearFilter').value,pp=E('fiscalPropertyFilter').value,years=[...new Set([new Date().getFullYear(),...db.expenses.map(x=>+x.date.slice(0,4))])].sort((a,b)=>b-a);E('fiscalYearFilter').innerHTML=opts(years.map(y=>[String(y),String(y)]));E('fiscalPropertyFilter').innerHTML=opts(pOpts());if(years.map(String).includes(py))E('fiscalYearFilter').value=py;if(db.properties.some(x=>x.id===pp))E('fiscalPropertyFilter').value=pp}
 function renderFiscal(){refreshFiscalFilters();const y=E('fiscalYearFilter').value,p=E('fiscalPropertyFilter').value;if(!p){E('fiscalSummary').innerHTML='<div class="card empty">Primero añade una vivienda</div>';E('fiscalList').innerHTML='';return}const xs=db.expenses.filter(x=>x.propertyId===p&&x.date.startsWith(y)),by={};xs.forEach(x=>by[x.category]=(by[x.category]||0)+x.amount);const fixedIbi=+prop(p)?.ibi||0,fixedWaste=+prop(p)?.wasteTax||0,fixedCommunity=(+prop(p)?.community||0)*12,manualTotal=xs.reduce((a,x)=>a+x.amount,0),fixedTotal=fixedIbi+fixedWaste+fixedCommunity;E('fiscalSummary').innerHTML=`<div class="card"><div class="row"><b>${esc(prop(p)?.name)} · ${y}</b><b>${euro(manualTotal+fixedTotal)}</b></div><div class="row muted"><span>IBI anual (ficha del piso)</span><span>${euro(fixedIbi)}</span></div><div class="row muted"><span>Tasa de basura anual (ficha del piso)</span><span>${euro(fixedWaste)}</span></div><div class="row muted"><span>Comunidad anual (${euro(+prop(p)?.community||0)} × 12)</span><span>${euro(fixedCommunity)}</span></div>${Object.entries(by).map(([k,v])=>`<div class="row muted"><span>${esc(k)}</span><span>${euro(v)}</span></div>`).join('')}</div>`;E('fiscalList').innerHTML=xs.length?xs.map(x=>`<div class="card"><div class="row"><div><b>${esc(x.category)}</b><div class="muted">${fmt(x.date)} · ${esc(x.description)}</div></div><b>${euro(x.amount)}</b></div><div class="card-actions-stack"><button class="secondary" onclick="openExpense('${x.id}')">Editar</button><button class="danger" onclick="del('expenses','${x.id}')">Eliminar</button></div></div>`).join(''):'<div class="card empty">No hay gastos para esta vivienda y año</div>'}
@@ -274,7 +274,7 @@ function showMortgage(id){const x=db.mortgages.find(v=>v.id===id);if(!x)return;c
 function renderProperties(){E('propertyList').innerHTML=db.properties.length?db.properties.map(x=>`<div class="card click-card" onclick="showProperty('${x.id}')"><div class="row"><div><b>${esc(x.name)}</b><div class="muted">${esc(x.address)}</div></div><b>${euro(x.value)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div><div class="icon-actions">${ownerIcon('✎','Editar',`openProperty('${x.id}')`)}${ownerIcon('⌫','Eliminar',`del('properties','${x.id}')`,'danger')}</div></div>`).join(''):'<div class="card empty">Añade tu primer piso</div>'}
 function renderContracts(){E('contractList').innerHTML=db.contracts.length?db.contracts.map(x=>`<div class="card click-card" onclick="showContract('${x.id}')"><div class="row"><div><b>${esc(prop(x.propertyId)?.name)}</b><div class="muted">${esc(x.tenant)}</div></div><b>${euro(x.rent)}/mes</b></div><div class="muted">${fmt(x.start)} a ${fmt(x.end)} · día ${x.dueDay}</div><div class="detail-hint">Pulsa para ver la ficha</div><div class="icon-actions">${ownerIcon('✎','Editar',`openContract('${x.id}')`)}${ownerIcon('⌫','Eliminar',`del('contracts','${x.id}')`,'danger')}</div></div>`).join(''):'<div class="card empty">No hay contratos</div>'}
 function renderPayments(){refreshPaymentFilters();const p=E('paymentPropertyFilter').value,m=E('paymentMonthFilter').value;const active=db.contracts.filter(c=>(p==='all'||c.propertyId===p)&&(!c.start||c.start.slice(0,7)<=m)&&(!c.end||c.end.slice(0,7)>=m));const received=active.reduce((a,c)=>a+(db.payments.find(x=>x.contractId===c.id&&x.month===m)?.amount||0),0),expected=active.reduce((a,c)=>a+(+c.rent||0),0);E('paymentFilterTotals').innerHTML=`Cobrado: <b>${euro(received)}</b> · Pendiente: <b>${euro(Math.max(0,expected-received))}</b>`;E('paymentList').innerHTML=active.length?active.map(c=>{const x=db.payments.find(v=>v.contractId===c.id&&v.month===m),checked=!!x;return `<div class="card ${checked?'click-card':''}" ${checked?`onclick="showPayment('${x.id}')"`:''}><div class="row"><label style="display:flex;align-items:center;gap:12px;margin:0;flex:1;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" style="width:24px;height:24px" ${checked?'checked':''} onchange="toggleMonthlyPayment('${c.id}','${m}')"><div><b>${esc(prop(c.propertyId)?.name)}</b><div class="muted">${esc(c.tenant)}${c.rentBank?' · '+esc(c.rentBank):''}</div></div></label><b>${euro(c.rent)}</b></div>${checked?`<p class="positive">Cobrado el <b>${fmt(x.date)}</b></p><div class="detail-hint">Pulsa para ver el detalle</div><div class="icon-actions">${ownerIcon('✎','Editar',`openPayment('${x.id}')`)}<button class="icon-btn primary" title="Comprobante PDF" onclick="event.stopPropagation();receipt(db.payments.find(v=>v.id==='${x.id}'))">▧</button></div>`:'<p class="muted">Pendiente de cobro</p>'}</div>`}).join(''):'<div class="card empty">No hay contratos activos con estos filtros</div>'}
-function legacyCoreRenderMortgages(){E('mortgageList').innerHTML=db.mortgages.length?db.mortgages.map(x=>{const bal=balanceAt(x),am=x.principal-bal,pct=x.principal?am/x.principal*100:0,r=currentLoanRow(x);return`<div class="card click-card" onclick="showMortgage('${x.id}')"><div class="row"><div><b>${esc(x.bank)} · ${esc(prop(x.propertyId)?.name)}</b><div class="muted">${x.rate}% · ${remainingText(x)}</div></div><b>${euro(bal)}</b></div><p>Cuota: ${euro(r.payment)} · Capital: <b class="positive">${euro(r.capital)}</b> · Intereses: ${euro(r.interest)}</p><div class="muted">Amortizado: ${euro(am)} (${pct.toFixed(1)}%)</div><div class="detail-hint">Pulsa para ver la ficha</div><div class="icon-actions"><button class="icon-btn primary" title="Ver amortización" onclick="event.stopPropagation();showAmort('${x.id}')">▤</button>${ownerIcon('✎','Editar',`openMortgage('${x.id}')`)}${ownerIcon('⌫','Eliminar',`del('mortgages','${x.id}')`,'danger')}</div></div>`}).join(''):'<div class="card empty">No hay hipotecas</div>'}
+function renderMortgages(){E('mortgageList').innerHTML=db.mortgages.length?db.mortgages.map(x=>{const bal=balanceAt(x),am=x.principal-bal,pct=x.principal?am/x.principal*100:0,r=currentLoanRow(x);return`<div class="card click-card" onclick="showMortgage('${x.id}')"><div class="row"><div><b>${esc(x.bank)} · ${esc(prop(x.propertyId)?.name)}</b><div class="muted">${x.rate}% · ${remainingText(x)}</div></div><b>${euro(bal)}</b></div><p>Cuota: ${euro(r.payment)} · Capital: <b class="positive">${euro(r.capital)}</b> · Intereses: ${euro(r.interest)}</p><div class="muted">Amortizado: ${euro(am)} (${pct.toFixed(1)}%)</div><div class="detail-hint">Pulsa para ver la ficha</div><div class="icon-actions"><button class="icon-btn primary" title="Ver amortización" onclick="event.stopPropagation();showAmort('${x.id}')">▤</button>${ownerIcon('✎','Editar',`openMortgage('${x.id}')`)}${ownerIcon('⌫','Eliminar',`del('mortgages','${x.id}')`,'danger')}</div></div>`}).join(''):'<div class="card empty">No hay hipotecas</div>'}
 function annualDue(date){if(!date)return'';const md=date.slice(5),year=new Date().getFullYear();let d=`${year}-${md}`;if(d<today())d=`${year+1}-${md}`;return d}
 const originalRenderHomeV11=renderHome;renderHome=function(){originalRenderHomeV11();let box=E('alerts'),html=box.innerHTML==='\x3cdiv class="empty">Sin avisos\x3c/div>'?'':box.innerHTML,now=new Date(today()+'T12:00:00');db.properties.forEach(x=>[['IBI',x.ibi,x.ibiDate],['Tasa de basura',x.wasteTax,x.wasteDate]].forEach(([label,amount,date])=>{const due=annualDue(date);if(!due)return;const days=Math.ceil((new Date(due+'T12:00:00')-now)/864e5);if(days>=0&&days<=90){const key=`property:${label}:${x.id}:${due}`,reviewed=db.reviewedAlerts[key];html+=`<div class="item alert ${reviewed?'reviewed':''}" onclick="db.reviewedAlerts['${key}']=true;localStorage.setItem(KEY,JSON.stringify(db));showProperty('${x.id}');renderHome()">${reviewed?'':'⚠️ '}${esc(label)} de ${esc(x.name)} · ${euro(amount)} · vence el ${fmt(due)}<div class="muted">Pulsa para ver el piso</div></div>`}}));box.innerHTML=html||'<div class="empty">Sin avisos</div>'}
 function applyDeviceMode(){const viewer=isViewer();E('deviceMode').value=viewer?'viewer':'owner';document.querySelectorAll('[data-action],#addFiscal,#clear').forEach(x=>x.classList.toggle('viewer-hidden',viewer));document.querySelectorAll('.owner-action,#fiscalList button,#paymentList input[type="checkbox"]').forEach(x=>x.classList.toggle('viewer-hidden',viewer));document.querySelectorAll('.click-card').forEach(x=>x.classList.toggle('readonly-card',viewer));let note=E('readonlyBanner');if(viewer&&!note){note=document.createElement('div');note.id='readonlyBanner';note.className='readonly-note';note.textContent='Modo solo lectura: puedes consultar todos los datos y modificar únicamente escenarios de la pestaña Plan.';document.querySelector('main.wrap').prepend(note)}else if(!viewer&&note)note.remove()}
@@ -285,8 +285,8 @@ activateTab=function(id,dir=0){baseActivateTab(id);const s=E(id);s.classList.rem
 function swipeBlocked(t){return !!t.closest('dialog,canvas,.scroll,table,input,select,textarea,button,label')}
 document.addEventListener('touchstart',e=>{if(e.touches.length!==1||swipeBlocked(e.target)){swipeStart=null;return}const t=e.touches[0];swipeStart={x:t.clientX,y:t.clientY,time:Date.now()}},{passive:true});
 document.addEventListener('touchend',e=>{if(!swipeStart||document.querySelector('dialog[open]')){swipeStart=null;return}const t=e.changedTouches[0],dx=t.clientX-swipeStart.x,dy=t.clientY-swipeStart.y,dt=Date.now()-swipeStart.time;swipeStart=null;if(dt>700||Math.abs(dx)<65||Math.abs(dx)<Math.abs(dy)*1.35)return;const i=TAB_ORDER.indexOf(document.querySelector('section.on')?.id),n=dx<0?i+1:i-1;if(n<0||n>=TAB_ORDER.length)return;activateTab(TAB_ORDER[n],dx<0?1:-1);renderAll()},{passive:true});
-function renderAll(){renderHome();renderProperties();renderContracts();renderPayments();if(window.MininosPages?.hipotecas?.render)window.MininosPages.hipotecas.render();else legacyCoreRenderMortgages();if(window.MininosPages?.rentabilidad?.render)window.MininosPages.rentabilidad.render();renderFiscal();renderFuture();setTimeout(applyDeviceMode,0)}
-document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{activateTab(b.dataset.tab);renderAll()});document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>({property:openProperty,contract:openContract,payment:openPayment,mortgage:openMortgage}[b.dataset.action])());E('cancel').onclick=()=>E('modal').close();E('debtChart').onclick=openChart;E('closeChart').onclick=()=>E('chartModal').close();E('debtChartLarge').onclick=chartClick;E('paymentPropertyFilter').onchange=renderPayments;E('paymentMonthFilter').onchange=renderPayments;E('fiscalYearFilter').onchange=renderFiscal;E('fiscalPropertyFilter').onchange=renderFiscal;E('addFiscal').onclick=()=>openExpense();E('savePlan').onclick=savePlan;E('cloudUpload').onclick=()=>cloudUpload(false);E('cloudDownload').onclick=cloudDownload;E('autoSync').onchange=saveSyncSettings;E('deviceMode').onchange=saveDeviceMode;E('planStrategy').onchange=()=>{E('customOrderCard').style.display=E('planStrategy').value==='custom'?'block':'none';};E('backup').onclick=()=>download('copia-alquileres-v12-'+today()+'.json',JSON.stringify(db,null,2),'application/json');E('csv').onclick=exportCSV;E('restore').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!['properties','contracts','payments','mortgages','expenses'].every(k=>Array.isArray(x[k])))throw 0;db=x;persist();alert('Copia restaurada.')}catch(e){alert('Copia no válida.')}};r.readAsText(f)};E('clear').onclick=()=>{if(confirm('¿Borrar todos los datos?')){db=empty();persist()}};renderAll();E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);
+function renderAll(){renderHome();renderProperties();renderContracts();renderPayments();renderMortgages();renderFiscal();renderFuture();setTimeout(applyDeviceMode,0)}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{activateTab(b.dataset.tab);renderAll()});document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>({property:openProperty,contract:openContract,payment:openPayment,mortgage:openMortgage}[b.dataset.action])());E('cancel').onclick=()=>E('modal').close();E('debtChart').onclick=openChart;E('closeChart').onclick=()=>E('chartModal').close();E('debtChartLarge').onclick=chartClick;E('paymentPropertyFilter').onchange=renderPayments;E('paymentMonthFilter').onchange=renderPayments;E('fiscalYearFilter').onchange=renderFiscal;E('fiscalPropertyFilter').onchange=renderFiscal;E('addFiscal').onclick=()=>openExpense();E('savePlan').onclick=savePlan;E('cloudUpload').onclick=()=>cloudUpload(false);E('cloudDownload').onclick=cloudDownload;E('autoSync').onchange=saveSyncSettings;E('deviceMode').onchange=saveDeviceMode;E('planStrategy').onchange=()=>{E('customOrderCard').style.display=E('planStrategy').value==='custom'?'block':'none';};E('backup').onclick=()=>download('copia-alquileres-v12-'+today()+'.json',JSON.stringify(db,null,2),'application/json');E('csv').onclick=exportCSV;E('restore').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!['properties','contracts','payments','mortgages','expenses'].every(k=>Array.isArray(x[k])))throw 0;db=x;persist();alert('Copia restaurada.')}catch(e){alert('Copia no válida.')}};r.readAsText(f)};E('clear').onclick=()=>{if(confirm('¿Borrar todos los datos?')){db=empty();persist()}};renderAll();E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=179').then(r=>r.update());
 
 /* mininos-v12-definitiva */
 const V12_TAX_FIELDS={IBI:'ibiPaidByYear','Tasa de basura':'wastePaidByYear'};
@@ -437,7 +437,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     return {year,month,mode,annual,rows};
   }
 
-  function legacyCoreOpenProfitExpense(id=''){
+  function openProfitExpense(id=''){
     db.profitExpenses=Array.isArray(db.profitExpenses)?db.profitExpenses:[];
     if(viewer()) return alert('Este dispositivo esta en modo solo lectura.');
     if(!db.properties.length) return alert('Primero anade un piso.');
@@ -456,21 +456,21 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       + field('Observaciones','pfNotes','text',x.notes);
     modal('Gasto de rentabilidad',html,()=>{
       const item={id:x.id||uid(),propertyId:E('pfProperty').value,concept:E('pfConcept').value,amount:+E('pfAmount').value,frequency:E('pfFrequency').value,date:E('pfDate').value,start:E('pfStart').value,end:E('pfEnd').value,deductible:E('pfDeductible').value==='yes',active:E('pfActive').value==='yes',notes:E('pfNotes').value};
-      const i=db.profitExpenses.findIndex(v=>v.id===item.id); i<0?db.profitExpenses.push(item):db.profitExpenses[i]=item; persist(); legacyCoreRenderProfit();
+      const i=db.profitExpenses.findIndex(v=>v.id===item.id); i<0?db.profitExpenses.push(item):db.profitExpenses[i]=item; persist(); renderProfit();
     });
   }
-  function legacyCoreDeleteProfitExpense(id){
+  function deleteProfitExpense(id){
     if(viewer()) return;
-    if(confirm('¿Eliminar este gasto de rentabilidad?')){db.profitExpenses=db.profitExpenses.filter(x=>x.id!==id);persist();legacyCoreRenderProfit();}
+    if(confirm('¿Eliminar este gasto de rentabilidad?')){db.profitExpenses=db.profitExpenses.filter(x=>x.id!==id);persist();renderProfit();}
   }
-  function legacyCoreShowProfitExpense(id){
+  function showProfitExpense(id){
     const x=db.profitExpenses.find(v=>v.id===id);if(!x)return;
     const frequency={monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago unico'}[x.frequency]||x.frequency;
-    if(typeof showDetail==='function') showDetail('📊',x.concept,getProp(x.propertyId)?.name||'',detailCell('Importe',money(x.amount))+detailCell('Periodicidad',frequency)+detailCell('Equivalente mensual',money(expenseMonthly(x)))+detailCell('Deducible',x.deductible?'Si':'No')+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();legacyCoreOpenProfitExpense('${id}')`));
-    else legacyCoreOpenProfitExpense(id);
+    if(typeof showDetail==='function') showDetail('📊',x.concept,getProp(x.propertyId)?.name||'',detailCell('Importe',money(x.amount))+detailCell('Periodicidad',frequency)+detailCell('Equivalente mensual',money(expenseMonthly(x)))+detailCell('Deducible',x.deductible?'Si':'No')+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();openProfitExpense('${id}')`));
+    else openProfitExpense(id);
   }
 
-  function legacyCoreRenderProfit(){
+  function renderProfit(){
     if(!E('profit')) return;
     db.profitExpenses=Array.isArray(db.profitExpenses)?db.profitExpenses:[];
     const d=profitData(), totals=d.rows.reduce((a,r)=>({income:a.income+r.income,fixed:a.fixed+r.fixed,manual:a.manual+r.manual,mortgages:a.mortgages+r.mortgages,profit:a.profit+r.profit}),{income:0,fixed:0,manual:0,mortgages:0,profit:0});
@@ -482,7 +482,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       <div class="card metric"><span class="muted">Beneficio ${d.annual?'anual':'mensual'}</span><b class="${totals.profit>=0?'positive':'negative'}">${money(totals.profit)}</b></div>
 </div>`;
     E('profitProperties').innerHTML=`<div class="card"><h3>Beneficio por inmueble</h3><div class="scroll"><table class="profit-table"><thead><tr><th>Inmueble</th><th>Ingresos</th><th>Gastos</th><th>Hipoteca</th><th>Beneficio</th></tr></thead><tbody>${d.rows.map(r=>`<tr><td><b>${safe(r.p.name)}</b></td><td>${money(r.income)}</td><td>${money(r.fixed+r.manual)}</td><td>${money(r.mortgages)}</td><td class="${r.profit>=0?'positive':'negative'}"><b>${money(r.profit)}</b></td></tr>`).join('')}<tr><th>TOTAL</th><th>${money(totals.income)}</th><th>${money(totals.fixed+totals.manual)}</th><th>${money(totals.mortgages)}</th><th>${money(totals.profit)}</th></tr></tbody></table></div><div class="profit-source">Ingresos desde Contratos/Cobros; comunidad, IBI y basura desde Pisos; cuotas desde Hipotecas; otros gastos desde Rentabilidad.</div></div>`;
-    E('profitExpenseList').innerHTML=db.profitExpenses.length?db.profitExpenses.map(x=>`<div class="card click-card" onclick="legacyCoreShowProfitExpense('${x.id}')"><div class="row"><div><b>${safe(x.concept)}</b><div class="muted">${safe(getProp(x.propertyId)?.name||'')} · ${safe({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago unico'}[x.frequency]||x.frequency)}</div></div><b>${money(x.amount)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div>${viewer()?'':`<div class="icon-actions">${ownerIcon('✎','Editar',`legacyCoreOpenProfitExpense('${x.id}')`)}${ownerIcon('⌫','Eliminar',`legacyCoreDeleteProfitExpense('${x.id}')`,'danger')}</div>`}</div>`).join(''):'<div class="card empty">No hay gastos manuales de rentabilidad</div>';
+    E('profitExpenseList').innerHTML=db.profitExpenses.length?db.profitExpenses.map(x=>`<div class="card click-card" onclick="showProfitExpense('${x.id}')"><div class="row"><div><b>${safe(x.concept)}</b><div class="muted">${safe(getProp(x.propertyId)?.name||'')} · ${safe({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago unico'}[x.frequency]||x.frequency)}</div></div><b>${money(x.amount)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div>${viewer()?'':`<div class="icon-actions">${ownerIcon('✎','Editar',`openProfitExpense('${x.id}')`)}${ownerIcon('⌫','Eliminar',`deleteProfitExpense('${x.id}')`,'danger')}</div>`}</div>`).join(''):'<div class="card empty">No hay gastos manuales de rentabilidad</div>';
   }
 
   // Fiscalidad: mantener calculos existentes y cambiar solo interaccion/acciones.
@@ -514,13 +514,13 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   const navData=document.querySelector('nav [data-tab="simulator"]');
   const btn=document.createElement('button');btn.dataset.tab='profit';btn.innerHTML='<span class="navicon">📈</span><span>Rentabilidad</span>';navData.before(btn);
   if(!TAB_ORDER.includes('profit')){const i=TAB_ORDER.indexOf('simulator');TAB_ORDER.splice(i<0?TAB_ORDER.length:i,0,'profit');}
-  btn.onclick=()=>{activateTab('profit');legacyCoreRenderProfit();};
-  E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;E('addProfitExpense').onclick=()=>legacyCoreOpenProfitExpense();
+  btn.onclick=()=>{activateTab('profit');renderProfit();};
+  E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('addProfitExpense').onclick=()=>openProfitExpense();
 
   const allBase=renderAll;
-  renderAll=function(){allBase();legacyCoreRenderProfit();};
-  window.legacyCoreOpenProfitExpense=legacyCoreOpenProfitExpense;window.legacyCoreDeleteProfitExpense=legacyCoreDeleteProfitExpense;window.legacyCoreShowProfitExpense=legacyCoreShowProfitExpense;window.legacyCoreRenderProfit=legacyCoreRenderProfit;
-  renderFiscal();legacyCoreRenderProfit();
+  renderAll=function(){allBase();renderProfit();};
+  window.openProfitExpense=openProfitExpense;window.deleteProfitExpense=deleteProfitExpense;window.showProfitExpense=showProfitExpense;window.renderProfit=renderProfit;
+  renderFiscal();renderProfit();
 
   /* V12.4: ingresos manuales en Rentabilidad */
   db.profitIncomes=Array.isArray(db.profitIncomes)?db.profitIncomes:[];
@@ -529,12 +529,12 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   function profitIncomeValue(x,year,month){if(x.active===false)return 0;const d=x.date||'';return month==='all'?(d.startsWith(year)?+x.amount||0:0):(d.startsWith(`${year}-${month}`)?+x.amount||0:0)}
   const profitDataBaseV124=profitData;
   profitData=function(){const d=profitDataBaseV124();d.rows.forEach(r=>{const extra=db.profitIncomes.filter(x=>x.propertyId===r.p.id).reduce((a,x)=>a+profitIncomeValue(x,d.year,d.month),0);r.income+=extra;r.profit+=extra});return d};
-  function legacyCoreOpenProfitIncome(id=''){if(viewer())return alert('Este dispositivo está en modo solo lectura.');if(!db.properties.length)return alert('Primero añade un piso.');const x=db.profitIncomes.find(v=>v.id===id)||{};modal('Ingreso de rentabilidad',select('Piso','piProperty',pOpts(),x.propertyId||db.properties[0].id)+field('Fecha','piDate','date',x.date||today(),'required')+select('Categoría','piCategory',[['Alquiler extraordinario','Alquiler extraordinario'],['Regularización','Regularización'],['Fianza retenida','Fianza retenida'],['Indemnización','Indemnización'],['Venta de mobiliario','Venta de mobiliario'],['Otro ingreso','Otro ingreso']],x.category||'Otro ingreso')+field('Concepto / pagador','piConcept','text',x.concept,'required')+field('Importe (€)','piAmount','number',x.amount,'required min="0" step=".01"')+select('Estado','piActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')+field('Observaciones','piNotes','text',x.notes),()=>{const item={id:x.id||uid(),propertyId:E('piProperty').value,date:E('piDate').value,category:E('piCategory').value,concept:E('piConcept').value,amount:+E('piAmount').value,active:E('piActive').value==='yes',notes:E('piNotes').value};const i=db.profitIncomes.findIndex(v=>v.id===item.id);i<0?db.profitIncomes.push(item):db.profitIncomes[i]=item;persist()})}
-  function legacyCoreDeleteProfitIncome(id){if(viewer())return;if(confirm('¿Eliminar este ingreso?')){db.profitIncomes=db.profitIncomes.filter(x=>x.id!==id);persist()}}
-  function legacyCoreShowProfitIncome(id){const x=db.profitIncomes.find(v=>v.id===id);if(!x)return;showDetail('€',x.concept,getProp(x.propertyId)?.name||'',detailCell('Fecha',fmt(x.date))+detailCell('Importe',money(x.amount))+detailCell('Categoría',safe(x.category))+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();legacyCoreOpenProfitIncome('${id}')`))}
-  const legacyCoreRenderProfitBaseV124=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){db.profitIncomes=Array.isArray(db.profitIncomes)?db.profitIncomes:[];legacyCoreRenderProfitBaseV124();const expenses=E('profitExpenseList');if(!expenses)return;let box=E('profitIncomeList');if(!box){const title=document.createElement('div');title.className='row';title.innerHTML='<h3>Otros ingresos</h3>';box=document.createElement('div');box.id='profitIncomeList';expenses.parentNode.insertBefore(title,expenses.previousElementSibling);expenses.parentNode.insertBefore(box,expenses.previousElementSibling)}const y=E('profitYear').value,m=E('profitMonth').value,xs=db.profitIncomes.filter(x=>m==='all'?(x.date||'').startsWith(y):(x.date||'').startsWith(`${y}-${m}`));box.innerHTML=xs.length?xs.map(x=>`<div class="card click-card" onclick="legacyCoreShowProfitIncome('${x.id}')"><div class="row"><div><b>${safe(x.concept)}</b><div class="muted">${safe(getProp(x.propertyId)?.name||'')} · ${fmt(x.date)} · ${safe(x.category)}</div></div><b class="positive">${money(x.amount)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div>${viewer()?'':`<div class="icon-actions">${ownerIcon('✎','Editar',`legacyCoreOpenProfitIncome('${x.id}')`)}${ownerIcon('⌫','Eliminar',`legacyCoreDeleteProfitIncome('${x.id}')`,'danger')}</div>`}</div>`).join(''):'<div class="card empty">No hay otros ingresos para este periodo</div>';if(typeof applyDeviceMode==='function')applyDeviceMode()};
-  window.legacyCoreOpenProfitIncome=legacyCoreOpenProfitIncome;window.legacyCoreDeleteProfitIncome=legacyCoreDeleteProfitIncome;window.legacyCoreShowProfitIncome=legacyCoreShowProfitIncome;E('addProfitIncome').onclick=()=>legacyCoreOpenProfitIncome();E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;legacyCoreRenderProfit();
+  function openProfitIncome(id=''){if(viewer())return alert('Este dispositivo está en modo solo lectura.');if(!db.properties.length)return alert('Primero añade un piso.');const x=db.profitIncomes.find(v=>v.id===id)||{};modal('Ingreso de rentabilidad',select('Piso','piProperty',pOpts(),x.propertyId||db.properties[0].id)+field('Fecha','piDate','date',x.date||today(),'required')+select('Categoría','piCategory',[['Alquiler extraordinario','Alquiler extraordinario'],['Regularización','Regularización'],['Fianza retenida','Fianza retenida'],['Indemnización','Indemnización'],['Venta de mobiliario','Venta de mobiliario'],['Otro ingreso','Otro ingreso']],x.category||'Otro ingreso')+field('Concepto / pagador','piConcept','text',x.concept,'required')+field('Importe (€)','piAmount','number',x.amount,'required min="0" step=".01"')+select('Estado','piActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')+field('Observaciones','piNotes','text',x.notes),()=>{const item={id:x.id||uid(),propertyId:E('piProperty').value,date:E('piDate').value,category:E('piCategory').value,concept:E('piConcept').value,amount:+E('piAmount').value,active:E('piActive').value==='yes',notes:E('piNotes').value};const i=db.profitIncomes.findIndex(v=>v.id===item.id);i<0?db.profitIncomes.push(item):db.profitIncomes[i]=item;persist()})}
+  function deleteProfitIncome(id){if(viewer())return;if(confirm('¿Eliminar este ingreso?')){db.profitIncomes=db.profitIncomes.filter(x=>x.id!==id);persist()}}
+  function showProfitIncome(id){const x=db.profitIncomes.find(v=>v.id===id);if(!x)return;showDetail('€',x.concept,getProp(x.propertyId)?.name||'',detailCell('Fecha',fmt(x.date))+detailCell('Importe',money(x.amount))+detailCell('Categoría',safe(x.category))+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();openProfitIncome('${id}')`))}
+  const renderProfitBaseV124=renderProfit;
+  renderProfit=function(){db.profitIncomes=Array.isArray(db.profitIncomes)?db.profitIncomes:[];renderProfitBaseV124();const expenses=E('profitExpenseList');if(!expenses)return;let box=E('profitIncomeList');if(!box){const title=document.createElement('div');title.className='row';title.innerHTML='<h3>Otros ingresos</h3>';box=document.createElement('div');box.id='profitIncomeList';expenses.parentNode.insertBefore(title,expenses.previousElementSibling);expenses.parentNode.insertBefore(box,expenses.previousElementSibling)}const y=E('profitYear').value,m=E('profitMonth').value,xs=db.profitIncomes.filter(x=>m==='all'?(x.date||'').startsWith(y):(x.date||'').startsWith(`${y}-${m}`));box.innerHTML=xs.length?xs.map(x=>`<div class="card click-card" onclick="showProfitIncome('${x.id}')"><div class="row"><div><b>${safe(x.concept)}</b><div class="muted">${safe(getProp(x.propertyId)?.name||'')} · ${fmt(x.date)} · ${safe(x.category)}</div></div><b class="positive">${money(x.amount)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div>${viewer()?'':`<div class="icon-actions">${ownerIcon('✎','Editar',`openProfitIncome('${x.id}')`)}${ownerIcon('⌫','Eliminar',`deleteProfitIncome('${x.id}')`,'danger')}</div>`}</div>`).join(''):'<div class="card empty">No hay otros ingresos para este periodo</div>';if(typeof applyDeviceMode==='function')applyDeviceMode()};
+  window.openProfitIncome=openProfitIncome;window.deleteProfitIncome=deleteProfitIncome;window.showProfitIncome=showProfitIncome;E('addProfitIncome').onclick=()=>openProfitIncome();E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;renderProfit();
 
 
   /* Ajustes solicitados sobre el ultimo index bueno */
@@ -543,11 +543,11 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   if(profitHeader){profitHeader.className='profit-topbar';E('addProfitExpense').className='profit-add-btn owner-action';E('addProfitExpense').innerHTML='＋ Gasto';E('addProfitIncome').className='profit-add-btn secondary owner-action';E('addProfitIncome').innerHTML='＋ Ingreso'}
   function paFreqValue(x,year,month){if(x.active===false)return 0;const point=`${year}-${month==='all'?'12':month}`;if(x.start&&x.start.slice(0,7)>point)return 0;if(x.end&&x.end.slice(0,7)<`${year}-${month==='all'?'01':month}`)return 0;const a=Number(x.amount)||0;if(month==='all')return x.frequency==='monthly'?a*12:x.frequency==='quarterly'?a*4:x.frequency==='semiannual'?a*2:x.frequency==='annual'?a:(x.date||'').startsWith(year)?a:0;return x.frequency==='once'?((x.date||'').startsWith(`${year}-${month}`)?a:0):x.frequency==='monthly'?a:x.frequency==='quarterly'?a/3:x.frequency==='semiannual'?a/6:x.frequency==='annual'?a/12:0}
   profitIncomeValue=paFreqValue;
-  legacyCoreOpenProfitIncome=function(id=''){if(viewer())return alert('Este dispositivo está en modo solo lectura.');if(!db.properties.length)return alert('Primero añade un piso.');const x=db.profitIncomes.find(v=>v.id===id)||{},freq=[['monthly','Mensual'],['quarterly','Trimestral'],['semiannual','Semestral'],['annual','Anual'],['once','Ingreso único']];modal('Ingreso de rentabilidad',select('Piso','piProperty',pOpts(),x.propertyId||db.properties[0].id)+select('Categoría','piCategory',[['Alquiler extraordinario','Alquiler extraordinario'],['Regularización','Regularización'],['Fianza retenida','Fianza retenida'],['Indemnización','Indemnización'],['Venta de mobiliario','Venta de mobiliario'],['Otro ingreso','Otro ingreso']],x.category||'Otro ingreso')+field('Concepto / pagador','piConcept','text',x.concept,'required')+field('Importe (€)','piAmount','number',x.amount,'required min="0" step=".01"')+select('Periodicidad','piFrequency',freq,x.frequency||'once')+field('Fecha del ingreso único','piDate','date',x.date||today())+field('Fecha de inicio','piStart','date',x.start)+field('Fecha de finalización','piEnd','date',x.end)+select('Estado','piActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')+field('Observaciones','piNotes','text',x.notes),()=>{const item={id:x.id||uid(),propertyId:E('piProperty').value,date:E('piDate').value,category:E('piCategory').value,concept:E('piConcept').value,amount:+E('piAmount').value,frequency:E('piFrequency').value,start:E('piStart').value,end:E('piEnd').value,active:E('piActive').value==='yes',notes:E('piNotes').value},i=db.profitIncomes.findIndex(v=>v.id===item.id);i<0?db.profitIncomes.push(item):db.profitIncomes[i]=item;persist()})};
-  legacyCoreShowProfitIncome=function(id){const x=db.profitIncomes.find(v=>v.id===id);if(!x)return;const f={monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Ingreso único'}[x.frequency]||'Ingreso único';showDetail('€',x.concept,getProp(x.propertyId)?.name||'',detailCell('Importe',money(x.amount))+detailCell('Periodicidad',f)+detailCell('Fecha única',x.frequency==='once'?fmt(x.date):'No aplica')+detailCell('Inicio',fmt(x.start))+detailCell('Finalización',fmt(x.end))+detailCell('Categoría',safe(x.category))+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();legacyCoreOpenProfitIncome('${id}')`))};window.legacyCoreOpenProfitIncome=legacyCoreOpenProfitIncome;window.legacyCoreShowProfitIncome=legacyCoreShowProfitIncome;
+  openProfitIncome=function(id=''){if(viewer())return alert('Este dispositivo está en modo solo lectura.');if(!db.properties.length)return alert('Primero añade un piso.');const x=db.profitIncomes.find(v=>v.id===id)||{},freq=[['monthly','Mensual'],['quarterly','Trimestral'],['semiannual','Semestral'],['annual','Anual'],['once','Ingreso único']];modal('Ingreso de rentabilidad',select('Piso','piProperty',pOpts(),x.propertyId||db.properties[0].id)+select('Categoría','piCategory',[['Alquiler extraordinario','Alquiler extraordinario'],['Regularización','Regularización'],['Fianza retenida','Fianza retenida'],['Indemnización','Indemnización'],['Venta de mobiliario','Venta de mobiliario'],['Otro ingreso','Otro ingreso']],x.category||'Otro ingreso')+field('Concepto / pagador','piConcept','text',x.concept,'required')+field('Importe (€)','piAmount','number',x.amount,'required min="0" step=".01"')+select('Periodicidad','piFrequency',freq,x.frequency||'once')+field('Fecha del ingreso único','piDate','date',x.date||today())+field('Fecha de inicio','piStart','date',x.start)+field('Fecha de finalización','piEnd','date',x.end)+select('Estado','piActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')+field('Observaciones','piNotes','text',x.notes),()=>{const item={id:x.id||uid(),propertyId:E('piProperty').value,date:E('piDate').value,category:E('piCategory').value,concept:E('piConcept').value,amount:+E('piAmount').value,frequency:E('piFrequency').value,start:E('piStart').value,end:E('piEnd').value,active:E('piActive').value==='yes',notes:E('piNotes').value},i=db.profitIncomes.findIndex(v=>v.id===item.id);i<0?db.profitIncomes.push(item):db.profitIncomes[i]=item;persist()})};
+  showProfitIncome=function(id){const x=db.profitIncomes.find(v=>v.id===id);if(!x)return;const f={monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Ingreso único'}[x.frequency]||'Ingreso único';showDetail('€',x.concept,getProp(x.propertyId)?.name||'',detailCell('Importe',money(x.amount))+detailCell('Periodicidad',f)+detailCell('Fecha única',x.frequency==='once'?fmt(x.date):'No aplica')+detailCell('Inicio',fmt(x.start))+detailCell('Finalización',fmt(x.end))+detailCell('Categoría',safe(x.category))+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();openProfitIncome('${id}')`))};window.openProfitIncome=openProfitIncome;window.showProfitIncome=showProfitIncome;
   let paOpen='';function paLines(r,d){const out=[],add=(n,v)=>{if(Math.abs(v)>.005)out.push(`<div class="profit-line"><span>${safe(n)}</span><b>${money(v)}</b></div>`)};add('Comunidad',(Number(r.p.community)||0)*(d.annual?12:1));add('IBI',(Number(r.p.ibi)||0)/(d.annual?1:12));add('Tasa de basura',(Number(r.p.wasteTax)||0)/(d.annual?1:12));db.profitExpenses.filter(x=>x.propertyId===r.p.id&&x.active!==false&&(!x.start||x.start.slice(0,4)<=d.year)&&(!x.end||x.end.slice(0,4)>=d.year)).forEach(x=>add(x.concept,d.annual?expenseAnnual(x,d.year):expenseMonthly(x)));return out.join('')||'<span class="muted">No hay gastos para este periodo.</span>'}
-  const paRender=legacyCoreRenderProfit;legacyCoreRenderProfit=function(){paRender();const d=profitData(),body=E('profitProperties')?.querySelector('tbody');if(body){const rows=[...body.rows];for(let i=d.rows.length-1;i>=0;i--){const r=d.rows[i],tr=rows[i],cell=tr?.cells[2];if(!cell)continue;cell.innerHTML=`<button class="profit-cost" onclick="toggleProfitCosts('${r.p.id}')">${money(r.fixed+r.manual)} ${paOpen===r.p.id?'▴':'▾'}</button>`;if(paOpen===r.p.id){const detail=body.insertRow(i+1),td=detail.insertCell();detail.className='profit-cost-detail';td.colSpan=5;td.innerHTML=`<div class="profit-lines">${paLines(r,d)}</div>`}}}if(typeof applyDeviceMode==='function')applyDeviceMode()};window.legacyCoreRenderProfit=legacyCoreRenderProfit;window.toggleProfitCosts=id=>{paOpen=paOpen===id?'':id;legacyCoreRenderProfit()};E('addProfitIncome').onclick=()=>legacyCoreOpenProfitIncome();
-  const paNav=document.querySelector('nav [data-tab="profit"]'),paPlan=document.querySelector('nav [data-tab="future"]');if(paNav&&paPlan)document.querySelector('nav [data-tab="home"]')?.after(paNav);const px=TAB_ORDER.indexOf('profit');if(px>=0)TAB_ORDER.splice(px,1);const fx=TAB_ORDER.indexOf('future');const px2=TAB_ORDER.indexOf('profit'); if(px2>=0) TAB_ORDER.splice(px2,1); TAB_ORDER.splice(1,0,'profit'); TAB_ORDER.splice(TAB_ORDER.indexOf('mortgages')<0?3:TAB_ORDER.indexOf('mortgages')+1,0);legacyCoreRenderProfit();
+  const paRender=renderProfit;renderProfit=function(){paRender();const d=profitData(),body=E('profitProperties')?.querySelector('tbody');if(body){const rows=[...body.rows];for(let i=d.rows.length-1;i>=0;i--){const r=d.rows[i],tr=rows[i],cell=tr?.cells[2];if(!cell)continue;cell.innerHTML=`<button class="profit-cost" onclick="toggleProfitCosts('${r.p.id}')">${money(r.fixed+r.manual)} ${paOpen===r.p.id?'▴':'▾'}</button>`;if(paOpen===r.p.id){const detail=body.insertRow(i+1),td=detail.insertCell();detail.className='profit-cost-detail';td.colSpan=5;td.innerHTML=`<div class="profit-lines">${paLines(r,d)}</div>`}}}if(typeof applyDeviceMode==='function')applyDeviceMode()};window.renderProfit=renderProfit;window.toggleProfitCosts=id=>{paOpen=paOpen===id?'':id;renderProfit()};E('addProfitIncome').onclick=()=>openProfitIncome();
+  const paNav=document.querySelector('nav [data-tab="profit"]'),paPlan=document.querySelector('nav [data-tab="future"]');if(paNav&&paPlan)document.querySelector('nav [data-tab="home"]')?.after(paNav);const px=TAB_ORDER.indexOf('profit');if(px>=0)TAB_ORDER.splice(px,1);const fx=TAB_ORDER.indexOf('future');const px2=TAB_ORDER.indexOf('profit'); if(px2>=0) TAB_ORDER.splice(px2,1); TAB_ORDER.splice(1,0,'profit'); TAB_ORDER.splice(TAB_ORDER.indexOf('mortgages')<0?3:TAB_ORDER.indexOf('mortgages')+1,0);renderProfit();
 
 
   /* Correccion puntual: titulo visible y detalle de gastos por cada inmueble */
@@ -579,9 +579,9 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       cell.appendChild(button);
     });
   }
-  const finalProfitRender=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){finalProfitRender();bindExpenseDetails()};
-  window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  const finalProfitRender=renderProfit;
+  renderProfit=function(){finalProfitRender();bindExpenseDetails()};
+  window.renderProfit=renderProfit;
   window.openPropertyExpenseDetail=openPropertyExpenseDetail;
   fixProfitTitle();bindExpenseDetails();
 
@@ -619,10 +619,10 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     const b=e.target.closest('button.oscar-expense-detail');if(!b)return;
     e.preventDefault();e.stopPropagation();openExpenseDetail35(b.dataset.propertyId);
   });
-  const onlyTwoRenderBase=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){onlyTwoRenderBase();bindExpenseDetail35()};
-  window.legacyCoreRenderProfit=legacyCoreRenderProfit;
-  E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;
+  const onlyTwoRenderBase=renderProfit;
+  renderProfit=function(){onlyTwoRenderBase();bindExpenseDetail35()};
+  window.renderProfit=renderProfit;
+  E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;
   bindExpenseDetail35();
 
 
@@ -638,9 +638,9 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       b.onclick=e=>{e.preventDefault();e.stopPropagation();openExpenseDetail35(r.p.id);return false};
     });
   }
-  const directExpenseRenderBase=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){directExpenseRenderBase();bindDirectExpenseButtons()};
-  window.legacyCoreRenderProfit=legacyCoreRenderProfit;E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;bindDirectExpenseButtons();
+  const directExpenseRenderBase=renderProfit;
+  renderProfit=function(){directExpenseRenderBase();bindDirectExpenseButtons()};
+  window.renderProfit=renderProfit;E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;bindDirectExpenseButtons();
 
 
   /* Correccion exclusiva del boton de gastos sobre el fichero adjunto */
@@ -671,14 +671,14 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     e.stopImmediatePropagation();
     window.openExpenseDetailStable(button.dataset.expenseProperty);
   },true);
-  const stableExpenseRenderBase=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){
+  const stableExpenseRenderBase=renderProfit;
+  renderProfit=function(){
     stableExpenseRenderBase();
     bindStableExpenseButtons();
   };
-  window.legacyCoreRenderProfit=legacyCoreRenderProfit;
-  E('profitYear').onchange=legacyCoreRenderProfit;
-  E('profitMonth').onchange=legacyCoreRenderProfit;
+  window.renderProfit=renderProfit;
+  E('profitYear').onchange=renderProfit;
+  E('profitMonth').onchange=renderProfit;
   bindStableExpenseButtons();
 
 
@@ -710,13 +710,13 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   manualCostsFor=function(propertyId,year,annual){const m=annual?'all':E('profitMonth').value;return db.profitExpenses.filter(x=>x.propertyId===propertyId&&!v103AnnualTax(x)).reduce((a,x)=>a+v13ExpensePeriodValue(x,year,m),0)};
   paLines=function(r,d){const out=[],add=(n,v)=>{if(Math.abs(v)>.005)out.push(`<div class="profit-line"><span>${safe(n)}</span><b>${money(v)}</b></div>`)};add('Comunidad',(Number(r.p.community)||0)*(d.annual?12:1));add('IBI',(Number(r.p.ibi)||0)/(d.annual?1:12));add('Tasa de basura',(Number(r.p.wasteTax)||0)/(d.annual?1:12));db.profitExpenses.filter(x=>x.propertyId===r.p.id&&!v103AnnualTax(x)).forEach(x=>add(`${x.category||'Otro'} · ${x.concept}`,v13ExpensePeriodValue(x,d.year,d.month)));return out.join('')||'<span class="muted">No hay gastos para este periodo.</span>'};
 
-  legacyCoreOpenProfitExpense=function(id=''){
+  openProfitExpense=function(id=''){
     if(viewer())return alert('Este dispositivo está en modo solo lectura.');if(!db.properties.length)return alert('Primero añade un piso.');
     const x=db.profitExpenses.find(v=>v.id===id)||{};
     const html=select('Piso','pfProperty',pOpts(),x.propertyId||db.properties[0].id)+select('Tipo de gasto','pfCategory',expenseTypes.map(v=>[v,v]),x.category||'Otro')+field('Concepto / proveedor','pfConcept','text',x.concept,'required')+field('Importe (€)','pfAmount','number',x.amount,'required min="0" step=".01"')+select('Periodicidad','pfFrequency',[['monthly','Mensual'],['quarterly','Trimestral'],['semiannual','Semestral'],['annual','Anual'],['once','Pago único']],x.frequency||'monthly')+field('Fecha del pago único','pfDate','date',x.date)+field('Fecha de inicio','pfStart','date',x.start)+field('Fecha de finalización / vencimiento','pfEnd','date',x.end)+select('Aviso','pfAlert',[['no','No'],['yes','Sí']],x.alert?'yes':'no')+select('Deducible fiscalmente','pfDeductible',[['no','No'],['yes','Sí']],x.deductible?'yes':'no')+select('Estado','pfActive',[['yes','Activo'],['no','Inactivo']],x.active===false?'no':'yes')+field('Observaciones / justificante','pfNotes','text',x.notes);
     modal('Gasto de rentabilidad',html,()=>{const item={id:x.id||uid(),legacyFiscalId:x.legacyFiscalId,propertyId:E('pfProperty').value,category:E('pfCategory').value,concept:E('pfConcept').value,amount:+E('pfAmount').value,frequency:E('pfFrequency').value,date:E('pfDate').value,start:E('pfStart').value,end:E('pfEnd').value,alert:E('pfAlert').value==='yes',deductible:E('pfDeductible').value==='yes',active:E('pfActive').value==='yes',notes:E('pfNotes').value};const i=db.profitExpenses.findIndex(v=>v.id===item.id);i<0?db.profitExpenses.push(item):db.profitExpenses[i]=item;persist()});
-  };window.legacyCoreOpenProfitExpense=legacyCoreOpenProfitExpense;
-  legacyCoreShowProfitExpense=function(id){const x=db.profitExpenses.find(v=>v.id===id);if(!x)return;const f={monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||x.frequency;showDetail('📊',x.concept,getProp(x.propertyId)?.name||'',detailCell('Tipo',safe(x.category))+detailCell('Importe',money(x.amount))+detailCell('Periodicidad',f)+detailCell('Equivalente mensual',money(x.frequency==='annual'?(Number(x.amount)||0)/12:expenseMonthly(x)))+detailCell('Inicio',fmt(x.start))+detailCell('Vencimiento',fmt(x.end))+detailCell('Aviso',x.alert?'Sí':'No')+detailCell('Deducible',x.deductible?'Sí':'No')+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();legacyCoreOpenProfitExpense('${id}')`))};window.legacyCoreShowProfitExpense=legacyCoreShowProfitExpense;
+  };window.openProfitExpense=openProfitExpense;
+  showProfitExpense=function(id){const x=db.profitExpenses.find(v=>v.id===id);if(!x)return;const f={monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||x.frequency;showDetail('📊',x.concept,getProp(x.propertyId)?.name||'',detailCell('Tipo',safe(x.category))+detailCell('Importe',money(x.amount))+detailCell('Periodicidad',f)+detailCell('Equivalente mensual',money(x.frequency==='annual'?(Number(x.amount)||0)/12:expenseMonthly(x)))+detailCell('Inicio',fmt(x.start))+detailCell('Vencimiento',fmt(x.end))+detailCell('Aviso',x.alert?'Sí':'No')+detailCell('Deducible',x.deductible?'Sí':'No')+detailCell('Estado',x.active===false?'Inactivo':'Activo')+detailCell('Observaciones',safe(x.notes),true),viewer()?'':ownerIcon('✎','Editar',`E('detailModal').close();openProfitExpense('${id}')`))};window.showProfitExpense=showProfitExpense;
 
   /* Selector de inmueble y retirada de Fiscalidad. */
   const toolbar=E('profitYear')?.closest('.profit-toolbar');
@@ -729,11 +729,11 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   if(document.querySelector('section.on')?.id==='fiscal')activateTab('profit');
 
   function v13VisibleExpenses(){const y=E('profitYear').value,m=E('profitMonth').value,p=E('profitProperty').value;return db.profitExpenses.filter(x=>(p==='all'||x.propertyId===p)&&v13ExpensePeriodValue(x,y,m)>0)}
-  function v13RenderExpenseList(){const box=E('profitExpenseList');if(!box)return;const xs=v13VisibleExpenses();box.innerHTML=xs.length?xs.map(x=>`<div class="card click-card" onclick="legacyCoreShowProfitExpense('${x.id}')"><div class="row"><div><b>${safe(x.category||'Otro')} · ${safe(x.concept)}</b><div class="muted">${safe(getProp(x.propertyId)?.name||'')} · ${safe({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||x.frequency)}${x.alert?' · <span class="expense-alert-yes">Aviso activo</span>':''}</div></div><b>${money(x.amount)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div>${viewer()?'':`<div class="icon-actions">${ownerIcon('✎','Editar',`legacyCoreOpenProfitExpense('${x.id}')`)}${ownerIcon('⌫','Eliminar',`legacyCoreDeleteProfitExpense('${x.id}')`,'danger')}</div>`}</div>`).join(''):'<div class="card empty">No hay gastos para este periodo</div>';if(typeof applyDeviceMode==='function')applyDeviceMode()}
-  const v13RenderProfitBase=legacyCoreRenderProfit;legacyCoreRenderProfit=function(){fillProfitProperties();v13RenderProfitBase();v13RenderExpenseList()};window.legacyCoreRenderProfit=legacyCoreRenderProfit;E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;E('profitProperty').onchange=legacyCoreRenderProfit;
+  function v13RenderExpenseList(){const box=E('profitExpenseList');if(!box)return;const xs=v13VisibleExpenses();box.innerHTML=xs.length?xs.map(x=>`<div class="card click-card" onclick="showProfitExpense('${x.id}')"><div class="row"><div><b>${safe(x.category||'Otro')} · ${safe(x.concept)}</b><div class="muted">${safe(getProp(x.propertyId)?.name||'')} · ${safe({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||x.frequency)}${x.alert?' · <span class="expense-alert-yes">Aviso activo</span>':''}</div></div><b>${money(x.amount)}</b></div><div class="detail-hint">Pulsa para ver la ficha</div>${viewer()?'':`<div class="icon-actions">${ownerIcon('✎','Editar',`openProfitExpense('${x.id}')`)}${ownerIcon('⌫','Eliminar',`deleteProfitExpense('${x.id}')`,'danger')}</div>`}</div>`).join(''):'<div class="card empty">No hay gastos para este periodo</div>';if(typeof applyDeviceMode==='function')applyDeviceMode()}
+  const v13RenderProfitBase=renderProfit;renderProfit=function(){fillProfitProperties();v13RenderProfitBase();v13RenderExpenseList()};window.renderProfit=renderProfit;E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('profitProperty').onchange=renderProfit;
 
   /* Avisos de gastos configurados con Aviso=Sí, por importe completo y vencimiento. */
-  const v13RenderHomeBase=renderHome;renderHome=function(){v13RenderHomeBase();const box=E('alerts'),now=new Date(today()+'T12:00:00');let html=box.innerHTML==='<div class="empty">Sin avisos</div>'?'':box.innerHTML;db.profitExpenses.filter(x=>x.alert&&x.active!==false&&x.end).forEach(x=>{const due=x.end,days=Math.ceil((new Date(due+'T12:00:00')-now)/864e5),key=`profitExpense:${x.id}:${due}`;if(days<0||days>90||db.reviewedAlerts[key])return;html+=`<div class="item alert" onclick="db.reviewedAlerts['${key}']=true;localStorage.setItem(KEY,JSON.stringify(db));legacyCoreShowProfitExpense('${x.id}');renderHome()">${safe(x.category||'Gasto')} · ${safe(x.concept)} · ${money(x.amount)} · vence el ${fmt(due)}<div class="muted">Pulsa para ver el gasto</div></div>`});box.innerHTML=html||'<div class="empty">Sin avisos</div>'};window.renderHome=renderHome;
+  const v13RenderHomeBase=renderHome;renderHome=function(){v13RenderHomeBase();const box=E('alerts'),now=new Date(today()+'T12:00:00');let html=box.innerHTML==='<div class="empty">Sin avisos</div>'?'':box.innerHTML;db.profitExpenses.filter(x=>x.alert&&x.active!==false&&x.end).forEach(x=>{const due=x.end,days=Math.ceil((new Date(due+'T12:00:00')-now)/864e5),key=`profitExpense:${x.id}:${due}`;if(days<0||days>90||db.reviewedAlerts[key])return;html+=`<div class="item alert" onclick="db.reviewedAlerts['${key}']=true;localStorage.setItem(KEY,JSON.stringify(db));showProfitExpense('${x.id}');renderHome()">${safe(x.category||'Gasto')} · ${safe(x.concept)} · ${money(x.amount)} · vence el ${fmt(due)}<div class="muted">Pulsa para ver el gasto</div></div>`});box.innerHTML=html||'<div class="empty">Sin avisos</div>'};window.renderHome=renderHome;
   renderAll();
 
 
@@ -774,7 +774,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       const key=`profitExpense:${x.id}:${due}`,reviewed=!!db.reviewedAlerts[key],card=document.createElement('div');
       card.className='item alert'+(reviewed?' reviewed':'');
       card.innerHTML=`${safe(x.category||'Gasto')} · ${safe(x.concept)} · ${safe(getProp(x.propertyId)?.name||'Piso sin nombre')} · ${money(x.amount)} · vence el ${fmt(due)}<div class="muted">Pulsa para ver el gasto y marcar el aviso como revisado</div>`;
-      card.onclick=()=>{db.reviewedAlerts[key]=true;localStorage.setItem(KEY,JSON.stringify(db));legacyCoreShowProfitExpense(x.id);renderHome()};box.appendChild(card);
+      card.onclick=()=>{db.reviewedAlerts[key]=true;localStorage.setItem(KEY,JSON.stringify(db));showProfitExpense(x.id);renderHome()};box.appendChild(card);
     });
     if(!box.querySelector('.alert'))box.innerHTML='<div class="empty">Sin avisos</div>';
   };window.renderHome=renderHome;
@@ -819,12 +819,12 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     decorateOrder('propertyList','properties',idFrom('property',/showProperty\('([^']+)'\)/));
     decorateOrder('contractList','contracts',idFrom('contract',/showContract\('([^']+)'\)/));
     decorateOrder('mortgageList','mortgages',idFrom('mortgage',/showMortgage\('([^']+)'\)/));
-    decorateOrder('profitExpenseList','profitExpenses',idFrom('expense',/legacyCoreShowProfitExpense\('([^']+)'\)/));
-    decorateOrder('profitIncomeList','profitIncomes',idFrom('income',/legacyCoreShowProfitIncome\('([^']+)'\)/));
+    decorateOrder('profitExpenseList','profitExpenses',idFrom('expense',/showProfitExpense\('([^']+)'\)/));
+    decorateOrder('profitIncomeList','profitIncomes',idFrom('income',/showProfitIncome\('([^']+)'\)/));
   }
-  const v133ProfitBase=legacyCoreRenderProfit;legacyCoreRenderProfit=function(){v133ProfitBase();decorateAllOrders()};window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  const v133ProfitBase=renderProfit;renderProfit=function(){v133ProfitBase();decorateAllOrders()};window.renderProfit=renderProfit;
   const v133AllBase=renderAll;renderAll=function(){v133AllBase();decorateAllOrders()};
-  E('profitDeductible').onchange=legacyCoreRenderProfit;E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;if(E('profitProperty'))E('profitProperty').onchange=legacyCoreRenderProfit;
+  E('profitDeductible').onchange=renderProfit;E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;if(E('profitProperty'))E('profitProperty').onchange=renderProfit;
   renderAll();
 
 
@@ -851,9 +851,9 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     });
     if(total)body.appendChild(total);
   }
-  const v134ProfitBase=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){v134ProfitBase();syncProfitPropertyOrder()};
-  window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  const v134ProfitBase=renderProfit;
+  renderProfit=function(){v134ProfitBase();syncProfitPropertyOrder()};
+  window.renderProfit=renderProfit;
   const v134HomeBase=renderHome;
   renderHome=function(){v134HomeBase();syncMortgageBriefOrder()};
   window.renderHome=renderHome;
@@ -889,11 +889,11 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   function modernContracts(){E('contractList').innerHTML=db.contracts.length?db.contracts.map(x=>{const future=x.start&&x.start>today(),ended=x.end&&x.end<today(),state=future?tag('Próximo','warn'):ended?tag('Finalizado'):tag('Activo','ok');return card(`showContract('${x.id}')`,'contract',getProp(x.propertyId)?.name||'Contrato',`${safe(x.tenant)} · ${fmt(x.start)} a ${fmt(x.end)}`,money(x.rent)+'/mes','',state,actions(`openContract('${x.id}')`,`del('contracts','${x.id}')`))}).join(''):'<div class="card empty">No hay contratos</div>'}
   function modernPayments(){refreshPaymentFilters();const p=E('paymentPropertyFilter').value,m=E('paymentMonthFilter').value,active=db.contracts.filter(c=>(p==='all'||c.propertyId===p)&&(!c.start||c.start.slice(0,7)<=m)&&(!c.end||c.end.slice(0,7)>=m)),received=active.reduce((a,c)=>a+(db.payments.find(x=>x.contractId===c.id&&x.month===m)?.amount||0),0),expected=active.reduce((a,c)=>a+(+c.rent||0),0);E('paymentFilterTotals').innerHTML=`Cobrado: <b>${money(received)}</b> · Pendiente: <b>${money(Math.max(0,expected-received))}</b>`;E('paymentList').innerHTML=active.length?active.map(c=>{const x=db.payments.find(v=>v.contractId===c.id&&v.month===m),paid=!!x,onclick=paid?`showPayment('${x.id}')`:'';return `<div class="card ${paid?'click-card':''}" ${onclick?`onclick="${onclick}"`:''}><div class="modern-line"><div class="modern-icon">${modernIcons.payment}</div><div class="modern-copy"><div class="modern-title">${safe(getProp(c.propertyId)?.name||'')}</div><div class="modern-meta">${safe(c.tenant)}${c.rentBank?' · '+safe(c.rentBank):''}</div><div class="modern-tags">${tag(paid?'Cobrado':'Pendiente',paid?'ok':'warn')}${paid?tag(fmt(x.date)):tag('Día '+(c.dueDay||''))}</div></div><div class="modern-value">${money(paid?x.amount:c.rent)}<small>${paid?safe(x.method||'Transferencia'):'Importe esperado'}</small></div><div class="payment-actions-v169"><span class="payment-buttons-v169">${paid?`<button class="icon-btn primary payment-pdf-v169" title="Comprobante PDF" onclick="event.stopPropagation();receipt(db.payments.find(v=>v.id==='${x.id}'))">▧</button>`:''}${paid&&!viewer()?ownerIcon('⌫','Eliminar',`toggleMonthlyPayment('${c.id}','${m}')`,'danger'):''}</span><span class="payment-check-slot-v169"><input class="modern-check" type="checkbox" ${paid?'checked':''} onclick="event.stopPropagation()" onchange="toggleMonthlyPayment('${c.id}','${m}')"></span></div></div></div>`}).join(''):'<div class="card empty">No hay contratos activos con estos filtros</div>';if(typeof applyDeviceMode==='function')applyDeviceMode()}
   function modernMortgages(){E('mortgageList').innerHTML=db.mortgages.length?db.mortgages.map(x=>{const r=currentLoanRow(x),future=futureMortgagePayment(x),extra=`<button class="icon-btn primary" title="Ver amortización" onclick="event.stopPropagation();showAmort('${x.id}')">▤</button>`;return `<div class="card click-card mortgage-card-v155" onclick="showMortgage('${x.id}')"><div class="modern-line mortgage-line-v155"><div class="modern-icon">${modernIcons.mortgage}</div><div class="modern-copy"><div class="modern-title">${safe(getProp(x.propertyId)?.name||'Hipoteca')}</div><div class="modern-meta">${safe(x.bank)} · ${safe(mortgageRateLabel(x))}</div><div class="modern-tags">${tag(remainingText(x))}</div></div><div class="mortgage-numbers-v155"><strong>${money(balanceAt(x))}</strong><small><span>Actual ${money(r.payment)}</span><span>Futura ${money(future)}</span></small></div>${actions(`openMortgage('${x.id}')`,`del('mortgages','${x.id}')`,extra)}</div></div>`}).join(''):'<div class="card empty">No hay hipotecas</div>'}
-  function modernProfitLists(){const y=E('profitYear').value,m=E('profitMonth').value,p=E('profitProperty').value,dx=E('profitDeductible')?.value||'all',xs=db.profitExpenses.filter(x=>(p==='all'||x.propertyId===p)&&v13ExpensePeriodValue(x,y,m)>0&&(dx==='all'||dx==='yes'&&x.deductible===true||dx==='no'&&x.deductible!==true));E('profitExpenseList').innerHTML=xs.length?xs.map(x=>card(`legacyCoreShowProfitExpense('${x.id}')`,'expense',x.concept,`${safe(x.category||'Otro')} · ${safe(getProp(x.propertyId)?.name||'')}`,money(x.amount),({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||''),tag(x.deductible?'Deducible':'No deducible',x.deductible?'ok':''),actions(`legacyCoreOpenProfitExpense('${x.id}')`,`legacyCoreDeleteProfitExpense('${x.id}')`))).join(''):'<div class="card empty">No hay gastos para este periodo</div>';const ib=E('profitIncomeList'),ins=db.profitIncomes.filter(x=>(p==='all'||x.propertyId===p)&&paFreqValue(x,y,m)>0);if(ib)ib.innerHTML=ins.length?ins.map(x=>card(`legacyCoreShowProfitIncome('${x.id}')`,'income',x.concept,`${safe(x.category||'Otro ingreso')} · ${safe(getProp(x.propertyId)?.name||'')}`,money(x.amount),({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Ingreso único'}[x.frequency]||''),tag('Ingreso','ok'),actions(`legacyCoreOpenProfitIncome('${x.id}')`,`legacyCoreDeleteProfitIncome('${x.id}')`))).join(''):'<div class="card empty">No hay otros ingresos para este periodo</div>'}
-  renderProperties=modernProperties;renderContracts=modernContracts;renderPayments=modernPayments;legacyCoreRenderMortgages=modernMortgages;
-  const modernProfitBase=legacyCoreRenderProfit;legacyCoreRenderProfit=function(){modernProfitBase();modernProfitLists();decorateAllOrders();syncProfitPropertyOrder()};window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  function modernProfitLists(){const y=E('profitYear').value,m=E('profitMonth').value,p=E('profitProperty').value,dx=E('profitDeductible')?.value||'all',xs=db.profitExpenses.filter(x=>(p==='all'||x.propertyId===p)&&v13ExpensePeriodValue(x,y,m)>0&&(dx==='all'||dx==='yes'&&x.deductible===true||dx==='no'&&x.deductible!==true));E('profitExpenseList').innerHTML=xs.length?xs.map(x=>card(`showProfitExpense('${x.id}')`,'expense',x.concept,`${safe(x.category||'Otro')} · ${safe(getProp(x.propertyId)?.name||'')}`,money(x.amount),({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Pago único'}[x.frequency]||''),tag(x.deductible?'Deducible':'No deducible',x.deductible?'ok':''),actions(`openProfitExpense('${x.id}')`,`deleteProfitExpense('${x.id}')`))).join(''):'<div class="card empty">No hay gastos para este periodo</div>';const ib=E('profitIncomeList'),ins=db.profitIncomes.filter(x=>(p==='all'||x.propertyId===p)&&paFreqValue(x,y,m)>0);if(ib)ib.innerHTML=ins.length?ins.map(x=>card(`showProfitIncome('${x.id}')`,'income',x.concept,`${safe(x.category||'Otro ingreso')} · ${safe(getProp(x.propertyId)?.name||'')}`,money(x.amount),({monthly:'Mensual',quarterly:'Trimestral',semiannual:'Semestral',annual:'Anual',once:'Ingreso único'}[x.frequency]||''),tag('Ingreso','ok'),actions(`openProfitIncome('${x.id}')`,`deleteProfitIncome('${x.id}')`))).join(''):'<div class="card empty">No hay otros ingresos para este periodo</div>'}
+  renderProperties=modernProperties;renderContracts=modernContracts;renderPayments=modernPayments;renderMortgages=modernMortgages;
+  const modernProfitBase=renderProfit;renderProfit=function(){modernProfitBase();modernProfitLists();decorateAllOrders();syncProfitPropertyOrder()};window.renderProfit=renderProfit;
   const modernAllBase=renderAll;renderAll=function(){modernAllBase();modernProperties();modernContracts();modernPayments();modernMortgages();modernProfitLists();decorateAllOrders();syncProfitPropertyOrder();syncMortgageBriefOrder();setTimeout(applyDeviceMode,0)};
-  E('paymentPropertyFilter').onchange=modernPayments;E('paymentMonthFilter').onchange=modernPayments;E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;E('profitProperty').onchange=legacyCoreRenderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=legacyCoreRenderProfit;
+  E('paymentPropertyFilter').onchange=modernPayments;E('paymentMonthFilter').onchange=modernPayments;E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('profitProperty').onchange=renderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=renderProfit;
   renderAll();
 
 
@@ -963,11 +963,11 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   function v621UpgradeFilters(){['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>v621UpgradeSelect(E(id)))}
   document.addEventListener('click',v621CloseMenu);window.addEventListener('resize',v621CloseMenu);
   function v621Cleanup(){E('profitProperties')?.querySelector('.profit-source')?.remove();v621UpgradeFilters()}
-  const v621RenderProfitBase=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){v621RenderProfitBase();v621Cleanup()};window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  const v621RenderProfitBase=renderProfit;
+  renderProfit=function(){v621RenderProfitBase();v621Cleanup()};window.renderProfit=renderProfit;
   const v621RenderAllBase=renderAll;
   renderAll=function(){v621RenderAllBase();v621Cleanup()};
-  E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;E('profitProperty').onchange=legacyCoreRenderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=legacyCoreRenderProfit;
+  E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;E('profitProperty').onchange=renderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=renderProfit;
   renderAll();
 
   /* Correccion integrada: periodos reales en Rentabilidad */
@@ -1099,8 +1099,8 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     showDetail('％',title,subtitle,body);
   };
 
-  const v14RenderProfitBase=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){v14RenderProfitBase();v14Table()};window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  const v14RenderProfitBase=renderProfit;
+  renderProfit=function(){v14RenderProfitBase();v14Table()};window.renderProfit=renderProfit;
 
   const v14Css=document.createElement('style');v14Css.textContent=`
     #profitProperties .v14-table{width:100%!important;min-width:900px!important;table-layout:fixed!important}
@@ -1116,8 +1116,8 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     #profitProperties .v14-table .oscar-expense-detail{font-size:14px!important;line-height:1!important;padding:2px 3px!important;min-height:0!important}
     @media(max-width:560px){#profitProperties .v14-table{min-width:860px!important}#profitProperties .v14-table th,#profitProperties .v14-table td{padding:5px 4px!important;height:32px!important;font-size:13px!important}#profitProperties .v14-table .oscar-expense-detail{font-size:13px!important}}
   `;document.head.appendChild(v14Css);
-  E('profitYear').onchange=legacyCoreRenderProfit;E('profitMonth').onchange=legacyCoreRenderProfit;if(E('profitProperty'))E('profitProperty').onchange=legacyCoreRenderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=legacyCoreRenderProfit;
-  legacyCoreRenderProfit();
+  E('profitYear').onchange=renderProfit;E('profitMonth').onchange=renderProfit;if(E('profitProperty'))E('profitProperty').onchange=renderProfit;if(E('profitDeductible'))E('profitDeductible').onchange=renderProfit;
+  renderProfit();
 
 
 
@@ -1133,7 +1133,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   function mininosOpenCurrentMonthProfit(){
     const current=monthNow();activateTab('profit');
     E('profitYear').value=current.slice(0,4);E('profitMonth').value=current.slice(5,7);if(E('profitProperty'))E('profitProperty').value='all';if(E('profitDeductible'))E('profitDeductible').value='all';
-    legacyCoreRenderProfit();
+    renderProfit();
     document.querySelectorAll('#profit .v621-select-button').forEach(b=>{const sel=b.previousElementSibling;if(sel?.tagName==='SELECT')b.textContent=sel.selectedOptions[0]?.textContent||''});
     requestAnimationFrame(()=>E('profitProperties')?.scrollIntoView({block:'start',behavior:'smooth'}));
   }
@@ -1213,9 +1213,9 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       const total=body.rows[body.rows.length-1],real=total.insertCell(3),net=total.insertCell(6);real.textContent=money(t.real);net.textContent=money(t.net);
     }
   }
-  const baseProfit=legacyCoreRenderProfit;
-  legacyCoreRenderProfit=function(){baseProfit();draw();requestAnimationFrame(()=>{if(localStorage.getItem('mininos-privacy-mode')==='1'){document.querySelectorAll('#profitSummary .metric b').forEach(x=>x.textContent='***** €')}})};
-  window.legacyCoreRenderProfit=legacyCoreRenderProfit;
+  const baseProfit=renderProfit;
+  renderProfit=function(){baseProfit();draw();requestAnimationFrame(()=>{if(localStorage.getItem('mininos-privacy-mode')==='1'){document.querySelectorAll('#profitSummary .metric b').forEach(x=>x.textContent='***** €')}})};
+  window.renderProfit=renderProfit;
   function homeValues(){
     const cur=monthNow(),y=E('profitYear'),m=E('profitMonth'),p=E('profitProperty'),ded=E('profitDeductible'),old=[y.value,m.value,p?.value,ded?.value];
     y.value=cur.slice(0,4);m.value=cur.slice(5,7);if(p)p.value='all';if(ded)ded.value='all';
@@ -1224,10 +1224,10 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   }
   const baseHome=renderHome;
   renderHome=function(){baseHome();const t=homeValues(),cards=[...E('metrics').querySelectorAll('.metric')];let b=cards.find(x=>/Flujo del mes|Beneficio del mes|Beneficio neto del mes/.test(x.querySelector('.muted')?.textContent||'')),g=cards.find(x=>/Gastos mensuales|Gastos reales del mes/.test(x.querySelector('.muted')?.textContent||''));if(b)b.innerHTML=`<span class="muted">Beneficio neto del mes</span><b class="${t.net>=0?'positive':'negative'}">${money(t.net)}</b>`;if(g)g.innerHTML=`<span class="muted">Gastos reales del mes</span><b class="negative">${money(t.real)}</b>`};window.renderHome=renderHome;
-  ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>{const el=E(id);if(el)el.onchange=legacyCoreRenderProfit});
+  ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>{const el=E(id);if(el)el.onchange=renderProfit});
   const css=document.createElement('style');css.textContent='#profit .profit-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}#profitProperties .v14-table{min-width:1100px!important}';document.head.appendChild(css);
   document.querySelectorAll('.mininos-header-version').forEach(b=>b.textContent=window.MININOS_APP_VERSION);
-  legacyCoreRenderProfit();renderHome();
+  renderProfit();renderHome();
 
 })();
 
@@ -1499,9 +1499,9 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   }
   function fitBothFinal(){fitProfitFinal();fitMortgageFinal()}
 
-  const finalRenderProfitBase=window.legacyCoreRenderProfit;
-  window.legacyCoreRenderProfit=function(){finalRenderProfitBase();requestAnimationFrame(()=>requestAnimationFrame(fitProfitFinal))};
-  legacyCoreRenderProfit=window.legacyCoreRenderProfit;
+  const finalRenderProfitBase=window.renderProfit;
+  window.renderProfit=function(){finalRenderProfitBase();requestAnimationFrame(()=>requestAnimationFrame(fitProfitFinal))};
+  renderProfit=window.renderProfit;
 
   const finalRenderHomeBase=window.renderHome;
   window.renderHome=function(){finalRenderHomeBase();requestAnimationFrame(()=>requestAnimationFrame(fitMortgageFinal))};
@@ -1711,7 +1711,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
   ['showProperty','showContract','showPayment','showMortgage','v14ShowReturnDetail','v14ShowGeneralDetail','openExpenseDetailStable'].forEach(wrap);
   const baseAll=renderAll;renderAll=function(){const r=baseAll();later();return r};window.renderAll=renderAll;
   if(typeof renderHome==='function'){const f=renderHome;renderHome=function(){const r=f();later();return r};window.renderHome=renderHome}
-  if(typeof legacyCoreRenderProfit==='function'){const f=legacyCoreRenderProfit;legacyCoreRenderProfit=function(){const r=f();maskProfit();later();return r};window.legacyCoreRenderProfit=legacyCoreRenderProfit}
+  if(typeof renderProfit==='function'){const f=renderProfit;renderProfit=function(){const r=f();maskProfit();later();return r};window.renderProfit=renderProfit}
   ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>{const el=E(id);if(el)el.addEventListener('change',later)});
   const profitHost=E('profit');if(profitHost)new MutationObserver(()=>{if(active())later()}).observe(profitHost,{childList:true,subtree:true});
   document.querySelectorAll('.mininos-header-version').forEach(b=>b.textContent=window.MININOS_APP_VERSION);
@@ -1811,14 +1811,14 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     });
     (db.profitExpenses||[]).filter(x=>x.alert&&x.active!==false&&x.end&&dueInWindow(x.end)).forEach(x=>{
       const key=`profitExpense:${x.id}:${x.end}`,reviewed=!!db.reviewedAlerts[key];
-      addAlert(box,{key,reviewed,text:`${esc(x.category||'Gasto')} · ${esc(x.concept)} · ${esc(prop(x.propertyId)?.name||'Piso')} · ${euro(x.amount)} · vence el ${fmt(x.end)}`,onClick:()=>{db.reviewedAlerts[key]=true;localStorage.setItem(KEY,JSON.stringify(db));legacyCoreShowProfitExpense(x.id);renderHome()}});
+      addAlert(box,{key,reviewed,text:`${esc(x.category||'Gasto')} · ${esc(x.concept)} · ${esc(prop(x.propertyId)?.name||'Piso')} · ${euro(x.amount)} · vence el ${fmt(x.end)}`,onClick:()=>{db.reviewedAlerts[key]=true;localStorage.setItem(KEY,JSON.stringify(db));showProfitExpense(x.id);renderHome()}});
     });
     if(!box.querySelector('.alert'))box.innerHTML='<div class="empty">Sin avisos</div>';
   }
 
-  const profitBase=window.legacyCoreRenderProfit;
-  window.legacyCoreRenderProfit=function(){const result=profitBase.apply(this,arguments);fixProfitTable();requestAnimationFrame(fixProfitTable);return result};
-  legacyCoreRenderProfit=window.legacyCoreRenderProfit;
+  const profitBase=window.renderProfit;
+  window.renderProfit=function(){const result=profitBase.apply(this,arguments);fixProfitTable();requestAnimationFrame(fixProfitTable);return result};
+  renderProfit=window.renderProfit;
   const homeBase=window.renderHome;
   window.renderHome=function(){const result=homeBase.apply(this,arguments);rebuildTimedAlerts();return result};
   renderHome=window.renderHome;
@@ -1943,8 +1943,8 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
 
   window.openStoredReceipt=openReceipt;window.removeStoredReceipt=removeReceipt;window.pickStoredReceipt=pickReceipt;window.attachStoredReceipt=attachReceipt;
 
-  const baseOpenExpense=window.legacyCoreOpenProfitExpense||legacyCoreOpenProfitExpense;
-  window.legacyCoreOpenProfitExpense=function(id=''){
+  const baseOpenExpense=window.openProfitExpense||openProfitExpense;
+  window.openProfitExpense=function(id=''){
     const before=new Set((db.profitExpenses||[]).map(x=>x.id));
     baseOpenExpense(id);
     const fields=E('fields');if(!fields||E('receiptPhoto'))return;
@@ -1958,10 +1958,10 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
       const targetId=id||((db.profitExpenses||[]).find(x=>!before.has(x.id))?.id);
       if(item&&targetId)saveReceipt(expenseKey(targetId),item);
     };
-  };legacyCoreOpenProfitExpense=window.legacyCoreOpenProfitExpense;
+  };openProfitExpense=window.openProfitExpense;
 
-  const baseShowExpense=window.legacyCoreShowProfitExpense||legacyCoreShowProfitExpense;
-  window.legacyCoreShowProfitExpense=function(id){baseShowExpense(id);const grid=E('detailBody')?.querySelector('.detail-grid');if(grid)grid.insertAdjacentHTML('beforeend',receiptPanel(expenseKey(id),'Justificantes'));E('detailModal')?.classList.remove('expense111');E('detailModal')?.classList.add('mininos-property-detail');const body=E('detailBody');if(body){body.scrollTop=0;requestAnimationFrame(()=>body.scrollTop=0)}};legacyCoreShowProfitExpense=window.legacyCoreShowProfitExpense;
+  const baseShowExpense=window.showProfitExpense||showProfitExpense;
+  window.showProfitExpense=function(id){baseShowExpense(id);const grid=E('detailBody')?.querySelector('.detail-grid');if(grid)grid.insertAdjacentHTML('beforeend',receiptPanel(expenseKey(id),'Justificantes'));E('detailModal')?.classList.remove('expense111');E('detailModal')?.classList.add('mininos-property-detail');const body=E('detailBody');if(body){body.scrollTop=0;requestAnimationFrame(()=>body.scrollTop=0)}};showProfitExpense=window.showProfitExpense;
 
   const baseShowProperty=window.showProperty||showProperty;
   window.showProperty=function(id){
@@ -2082,19 +2082,19 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     });
   };showProperty=window.showProperty;
 
-  const showExpenseBase=window.legacyCoreShowProfitExpense||legacyCoreShowProfitExpense;
-  window.legacyCoreShowProfitExpense=function(id){
+  const showExpenseBase=window.showProfitExpense||showProfitExpense;
+  window.showProfitExpense=function(id){
     const x=(db.profitExpenses||[]).find(v=>v.id===id);if(x?.documentationOnly)return showHistoricalExpense(id);
     showExpenseBase(id);
-  };legacyCoreShowProfitExpense=window.legacyCoreShowProfitExpense;
+  };showProfitExpense=window.showProfitExpense;
 
-  const legacyCoreRenderProfitBase=window.legacyCoreRenderProfit||legacyCoreRenderProfit;
-  window.legacyCoreRenderProfit=function(){const r=legacyCoreRenderProfitBase.apply(this,arguments);renderHistoricalExpenses();return r};legacyCoreRenderProfit=window.legacyCoreRenderProfit;
+  const renderProfitBase=window.renderProfit||renderProfit;
+  window.renderProfit=function(){const r=renderProfitBase.apply(this,arguments);renderHistoricalExpenses();return r};renderProfit=window.renderProfit;
   ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>{const el=E(id);if(el)el.addEventListener('change',()=>requestAnimationFrame(renderHistoricalExpenses))});
 
   const style=document.createElement('style');style.textContent='.history-tax-card{border-left:4px solid var(--ok)!important}';document.head.appendChild(style);
   document.querySelectorAll('.mininos-header-version').forEach(b=>b.textContent=VERSION);
-  legacyCoreRenderProfit();
+  renderProfit();
 })();
 
 /* ===== FIN mininos-v80-archivo.js ===== */

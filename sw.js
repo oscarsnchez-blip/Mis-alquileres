@@ -1,3 +1,5 @@
-const CACHE='mininos-v186-modular';
-const CORE=['./','./index.html?v=186','./styles.css?v=186','./compat.js?v=186','./core.js?v=186','./inicio.js?v=186','./pisos.js?v=186','./contratos.js?v=186','./cobros.js?v=186','./hipotecas.js?v=186','./rentabilidad.js?v=186','./plan.js?v=186','./calculadora.js?v=186','./datos.js?v=186','./app.js?v=186'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{if(r&&r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request)))});
+const CACHE='mininos-v176';
+const CORE=['./','./index.html?v=176','./app.css?v=151','./app-v73.js?v=176'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{if(r&&r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request)))});
