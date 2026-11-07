@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v207';
+window.MININOS_APP_VERSION='v208';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -286,7 +286,7 @@ function swipeBlocked(t){return !!t.closest('dialog,canvas,.scroll,table,input,s
 document.addEventListener('touchstart',e=>{if(e.touches.length!==1||swipeBlocked(e.target)){swipeStart=null;return}const t=e.touches[0];swipeStart={x:t.clientX,y:t.clientY,time:Date.now()}},{passive:true});
 document.addEventListener('touchend',e=>{if(!swipeStart||document.querySelector('dialog[open]')){swipeStart=null;return}const t=e.changedTouches[0],dx=t.clientX-swipeStart.x,dy=t.clientY-swipeStart.y,dt=Date.now()-swipeStart.time;swipeStart=null;if(dt>700||Math.abs(dx)<65||Math.abs(dx)<Math.abs(dy)*1.35)return;const i=TAB_ORDER.indexOf(document.querySelector('section.on')?.id),n=dx<0?i+1:i-1;if(n<0||n>=TAB_ORDER.length)return;activateTab(TAB_ORDER[n],dx<0?1:-1);renderAll()},{passive:true});
 function renderAll(){renderHome();renderProperties();renderContracts();renderPayments();renderMortgages();renderFiscal();renderFuture();setTimeout(applyDeviceMode,0)}
-document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{activateTab(b.dataset.tab);renderAll()});document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>({property:openProperty,contract:openContract,payment:openPayment,mortgage:openMortgage}[b.dataset.action])());E('cancel').onclick=()=>E('modal').close();E('debtChart').onclick=openChart;E('closeChart').onclick=()=>E('chartModal').close();E('debtChartLarge').onclick=chartClick;E('paymentPropertyFilter').onchange=renderPayments;E('paymentMonthFilter').onchange=renderPayments;E('fiscalYearFilter').onchange=renderFiscal;E('fiscalPropertyFilter').onchange=renderFiscal;E('addFiscal').onclick=()=>openExpense();E('savePlan').onclick=savePlan;E('cloudUpload').onclick=()=>cloudUpload(false);E('cloudDownload').onclick=cloudDownload;E('autoSync').onchange=saveSyncSettings;E('deviceMode').onchange=saveDeviceMode;E('planStrategy').onchange=()=>{E('customOrderCard').style.display=E('planStrategy').value==='custom'?'block':'none';};E('backup').onclick=()=>download('copia-alquileres-v12-'+today()+'.json',JSON.stringify(db,null,2),'application/json');E('csv').onclick=exportCSV;E('restore').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!['properties','contracts','payments','mortgages','expenses'].every(k=>Array.isArray(x[k])))throw 0;db=x;persist();alert('Copia restaurada.')}catch(e){alert('Copia no válida.')}};r.readAsText(f)};E('clear').onclick=()=>{if(confirm('¿Borrar todos los datos?')){db=empty();persist()}};renderAll();E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=207').then(r=>r.update());
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{activateTab(b.dataset.tab);renderAll()});document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>({property:openProperty,contract:openContract,payment:openPayment,mortgage:openMortgage}[b.dataset.action])());E('cancel').onclick=()=>E('modal').close();E('debtChart').onclick=openChart;E('closeChart').onclick=()=>E('chartModal').close();E('debtChartLarge').onclick=chartClick;E('paymentPropertyFilter').onchange=renderPayments;E('paymentMonthFilter').onchange=renderPayments;E('fiscalYearFilter').onchange=renderFiscal;E('fiscalPropertyFilter').onchange=renderFiscal;E('addFiscal').onclick=()=>openExpense();E('savePlan').onclick=savePlan;E('cloudUpload').onclick=()=>cloudUpload(false);E('cloudDownload').onclick=cloudDownload;E('autoSync').onchange=saveSyncSettings;E('deviceMode').onchange=saveDeviceMode;E('planStrategy').onchange=()=>{E('customOrderCard').style.display=E('planStrategy').value==='custom'?'block':'none';};E('backup').onclick=()=>download('copia-alquileres-v12-'+today()+'.json',JSON.stringify(db,null,2),'application/json');E('csv').onclick=exportCSV;E('restore').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!['properties','contracts','payments','mortgages','expenses'].every(k=>Array.isArray(x[k])))throw 0;db=x;persist();alert('Copia restaurada.')}catch(e){alert('Copia no válida.')}};r.readAsText(f)};E('clear').onclick=()=>{if(confirm('¿Borrar todos los datos?')){db=empty();persist()}};renderAll();E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=208').then(r=>r.update());
 
 /* mininos-v12-definitiva */
 const V12_TAX_FIELDS={IBI:'ibiPaidByYear','Tasa de basura':'wastePaidByYear'};
@@ -1817,16 +1817,17 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
         if(mm!=='00'&&dd!=='00'){
           let year=Number(x.nextPaymentYear)||new Date(today()+'T12:00:00').getFullYear();
           const paid=y=>(x.annualPayments||[]).some(p=>Number(p.year)===Number(y)&&p.status==='paid');
-          while(paid(year))year++;
+          const hasRenewal=Number(x.nextAmount)>0;
+          if(paid(year)&&!hasRenewal)while(paid(year))year++;
           due=`${year}-${mm}-${dd}`;
-          if(new Date(due+'T12:00:00')<new Date(today()+'T12:00:00')&&paid(year))due=`${year+1}-${mm}-${dd}`;
+          if(new Date(due+'T12:00:00')<new Date(today()+'T12:00:00'))due=`${year+1}-${mm}-${dd}`;
         }
       }else due=x.end||'';
       if(!due||!dueInWindow(due))return;
       const year=Number(due.slice(0,4));
-      const isPaid=(x.annualPayments||[]).some(p=>Number(p.year)===year&&p.status==='paid');if(isPaid)return;
+      const isPaid=(x.annualPayments||[]).some(p=>Number(p.year)===year&&p.status==='paid');if(isPaid&&!(x.frequency==='annual'&&Number(x.nextAmount)>0))return;
       const amount=x.frequency==='annual'?Number(x.nextAmount||x.amount)||0:Number(x.amount)||0;
-      const key=`profitExpense:${x.id}:${due}`,reviewed=!!db.reviewedAlerts[key];
+      const key=`profitExpenseRenewal:${x.id}:${due}:${amount}`,reviewed=!!db.reviewedAlerts[key];
       addAlert(box,{key,reviewed,text:`${esc(x.concept||x.category||'Gasto anual')} · ${esc(prop(x.propertyId)?.name||'Piso')} · ${euro(amount)} · vence el ${fmt(due)}`,onClick:()=>{db.reviewedAlerts[key]=true;localStorage.setItem(KEY,JSON.stringify(db));showProfitExpense(x.id);renderHome()}});
     });
     if(!box.querySelector('.alert'))box.innerHTML='<div class="empty">Sin avisos</div>';
