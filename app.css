@@ -222,3 +222,10 @@ html body dialog#detailModal[open] #detailBody .detail-grid>.r2-breakdown.detail
 /* v211 */
 #profit2 .r2-title h2{transform:translateY(-6px)!important}
 #profit2 .r2-table th:first-child,#profit2 .r2-table td:first-child{font-size:11px!important}
+
+/* v212 Avisos: dos líneas compactas, sin aumentar la ficha */
+#alerts .alert .profit-alert-main,#alerts .alert .profit-alert-meta{display:block!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1.15!important}
+#alerts .alert .profit-alert-main{font-size:12px!important;font-weight:800!important;color:inherit!important}
+#alerts .alert .profit-alert-meta{margin-top:2px!important;font-size:10px!important;font-weight:650!important;color:inherit!important;opacity:.86!important}
+#alerts .alert:has(.profit-alert-main){padding-top:8px!important;padding-bottom:8px!important}
+#alerts .alert:has(.profit-alert-main)>.muted{display:none!important}
