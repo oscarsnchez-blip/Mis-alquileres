@@ -218,3 +218,7 @@ html body dialog#detailModal[open] #detailBody .detail-grid>.r2-breakdown.detail
 #profit2 .r2-table th,#profit2 .r2-table td{font-size:11px!important}
 #profit2 .r2-table th:first-child,#profit2 .r2-table td:first-child{font-size:12px!important}
 #profit2 .r2-title h2{font-size:21px!important}
+
+/* v211 */
+#profit2 .r2-title h2{transform:translateY(-6px)!important}
+#profit2 .r2-table th:first-child,#profit2 .r2-table td:first-child{font-size:11px!important}
