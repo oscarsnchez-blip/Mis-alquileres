@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v193';
+window.MININOS_APP_VERSION='v194';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
