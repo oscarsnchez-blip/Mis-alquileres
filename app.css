@@ -180,3 +180,13 @@ html.r2-menu-open,body.r2-menu-open{overflow:hidden!important;overscroll-behavio
 #profit2 .r2-title:before{left:0!important;top:5px!important;bottom:auto!important;width:4px!important;height:22px!important;border-radius:4px!important;background:#229bd0!important}
 #profit2 .r2-title h2{font-size:18px!important;line-height:1.15!important;white-space:nowrap!important}
 #profit2 .r2-record.r2-reorder-source{opacity:.32!important;position:relative!important;transform:none!important}.reorder-placeholder{margin-bottom:6px!important;border:2px dashed #229bd0!important;border-radius:13px!important;background:#eaf6f9!important}
+/* v204 - limpieza final de cuatro componentes */
+.r2-menu{height:min(300px,70vh)!important;max-height:70vh!important;overflow-y:scroll!important;overflow-x:hidden!important;touch-action:pan-y!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
+#profit2 .r2-title{padding-left:12px!important;margin:0 0 12px!important;min-height:auto!important}
+#profit2 .r2-title:before{left:0!important;top:4px!important;bottom:4px!important;width:4px!important;height:auto!important;border-radius:4px!important;background:#229bd0!important}
+#profit2 .r2-title h2{font-size:24px!important;line-height:1.2!important;font-weight:900!important;letter-spacing:-.02em!important}
+.r2-popup{width:calc(100vw - 24px)!important;max-width:720px!important}
+.r2-popup .r2-breakdown{display:block!important;width:100%!important;max-width:none!important;box-sizing:border-box!important}
+.r2-popup .r2-breakdown>div{display:grid!important;grid-template-columns:minmax(0,1fr) 112px!important;width:100%!important;box-sizing:border-box!important;gap:12px!important}
+.r2-popup .r2-breakdown span{min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.r2-popup .r2-breakdown b{width:112px!important;text-align:right!important;white-space:nowrap!important}
+#profit2 .r2-record.r2-reorder-source{opacity:.45!important;outline:2px solid #229bd0!important;position:relative!important;transform:none!important}.reordering-cards{touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
