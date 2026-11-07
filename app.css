@@ -229,3 +229,8 @@ html body dialog#detailModal[open] #detailBody .detail-grid>.r2-breakdown.detail
 #alerts .alert .profit-alert-meta{margin-top:2px!important;font-size:10px!important;font-weight:650!important;color:inherit!important;opacity:.86!important}
 #alerts .alert:has(.profit-alert-main){padding-top:8px!important;padding-bottom:8px!important}
 #alerts .alert:has(.profit-alert-main)>.muted{display:none!important}
+
+/* v213 Avisos: ocultar estado vacío y mover check a la derecha */
+#alerts:has(.alert)>.empty,#alerts:has(.alert) .empty{display:none!important}
+#alerts .alert.reviewed:has(.profit-alert-main){position:relative!important;padding-right:42px!important}
+#alerts .alert.reviewed:has(.profit-alert-main)::before{content:'✓'!important;position:absolute!important;right:15px!important;top:50%!important;left:auto!important;margin:0!important;transform:translateY(-50%)!important;font-size:19px!important;font-weight:900!important;line-height:1!important;color:#087a49!important}

@@ -1,4 +1,4 @@
-/* RENTABILIDAD2_VALIDATED_V212 */
+/* RENTABILIDAD2_VALIDATED_V213 */
 'use strict';
 (()=>{
 const $=id=>document.getElementById(id), ID='profit2', EURO=n=>(Number(n)||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
