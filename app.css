@@ -210,3 +210,6 @@ html body dialog#detailModal[open] #detailBody .detail-grid>.r2-breakdown.detail
 
 /* v208 */
 #profit2 .r2-title h2{transform:translateY(-3px)!important}
+
+/* v209 */
+#profit2 .r2-title h2{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif!important;font-size:20px!important;font-weight:700!important;line-height:1.2!important;letter-spacing:normal!important;transform:translateY(-5px)!important}
