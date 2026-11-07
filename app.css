@@ -213,3 +213,8 @@ html body dialog#detailModal[open] #detailBody .detail-grid>.r2-breakdown.detail
 
 /* v209 */
 #profit2 .r2-title h2{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif!important;font-size:20px!important;font-weight:700!important;line-height:1.2!important;letter-spacing:normal!important;transform:translateY(-5px)!important}
+
+/* v210 */
+#profit2 .r2-table th,#profit2 .r2-table td{font-size:11px!important}
+#profit2 .r2-table th:first-child,#profit2 .r2-table td:first-child{font-size:12px!important}
+#profit2 .r2-title h2{font-size:21px!important}
