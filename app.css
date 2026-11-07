@@ -142,3 +142,22 @@ html.r2-menu-open,body.r2-menu-open{overflow:hidden!important;position:relative!
 #profit2 .r2-table thead th:first-child,#profit2 .r2-table .r2-total td:first-child{background:#f4f8fb!important;z-index:12!important}
 #profit2 .r2-record .icon-actions .icon-btn{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;padding:0!important}
 #profit2 .r2-record .drag-handle{width:27px!important;height:30px!important;touch-action:none!important}
+/* v201 - correcciones finales de Rentabilidad 2 */
+html.r2-menu-open,body.r2-menu-open{overflow:hidden!important;overscroll-behavior:none!important;touch-action:auto!important}
+.r2-menu{overflow-y:scroll!important;max-height:min(320px,70vh)!important;touch-action:pan-y!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;pointer-events:auto!important}
+.r2-menu button{pointer-events:auto!important;touch-action:manipulation!important}
+#profit2 .r2-title,#profit2 .r2-title h2{border:0!important;border-left:0!important;background:none!important;box-shadow:none!important;text-decoration:none!important}
+#profit2 .r2-title:before,#profit2 .r2-title:after,#profit2 .r2-title h2:before,#profit2 .r2-title h2:after{display:none!important;content:none!important;border:0!important;background:none!important}
+body.r2-dialog-open{overflow:hidden!important;overscroll-behavior:none!important}
+dialog.r2-expense-dialog{width:min(94vw,520px)!important;max-height:88vh!important;padding:0!important;border:0!important;border-radius:22px!important;overflow:hidden!important;background:#f6f9fb!important;box-shadow:0 24px 70px #102a4360!important}
+dialog.r2-expense-dialog::backdrop{background:rgba(13,31,43,.62)!important;backdrop-filter:blur(2px)!important}
+dialog.r2-expense-dialog #form{max-height:88vh!important;overflow:auto!important;padding:18px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
+dialog.r2-expense-dialog #formTitle{margin:0 0 14px!important;font-size:21px!important;line-height:1.2!important;color:#17384b!important}
+dialog.r2-expense-dialog .r2-form{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+dialog.r2-expense-dialog .r2-field{display:grid!important;gap:5px!important;padding:9px!important;border:1px solid #dce7ed!important;border-radius:13px!important;background:#fff!important}
+dialog.r2-expense-dialog .r2-field>span{font-size:10px!important;font-weight:850!important;color:#607789!important;text-transform:uppercase!important;letter-spacing:.03em!important}
+dialog.r2-expense-dialog .r2-field input,dialog.r2-expense-dialog .r2-field select{width:100%!important;height:38px!important;min-height:38px!important;margin:0!important;padding:7px 9px!important;border:1px solid #cbd9e1!important;border-radius:10px!important;background:#f9fbfc!important;color:#172638!important;font-size:13px!important}
+dialog.r2-expense-dialog .r2-hidden{display:none!important}
+dialog.r2-expense-dialog .modal-actions,dialog.r2-expense-dialog #form>div:last-child{position:sticky!important;bottom:-18px!important;z-index:5!important;margin:14px -18px -18px!important;padding:12px 18px calc(12px + env(safe-area-inset-bottom))!important;background:#f6f9fbf2!important;backdrop-filter:blur(8px)!important}
+#profit2 .r2-record .drag-handle{touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
+@media(max-width:430px){dialog.r2-expense-dialog .r2-form{grid-template-columns:repeat(2,minmax(0,1fr))!important}dialog.r2-expense-dialog .r2-field:has(#r2eConcept),dialog.r2-expense-dialog .r2-field:has(#r2iConcept){grid-column:1/-1!important}}
