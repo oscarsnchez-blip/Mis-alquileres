@@ -86,3 +86,36 @@ section.swipe-in-left{animation:sl .18s ease-out}section.swipe-in-right{animatio
 #profit2 .r2-table{min-width:780px!important}#profit2 .r2-table th:first-child,#profit2 .r2-table td:first-child{width:92px!important;max-width:92px!important}#profit2 .r2-table th:not(:first-child),#profit2 .r2-table td:not(:first-child){width:78px!important;max-width:78px!important}#profit2 .r2-table th,#profit2 .r2-table td,#profit2 .r2-table button{font-size:8.5px!important;padding:4px 2px!important}
 /* v195 visible build marker */
 #profit2 .r2-build{display:inline-flex;vertical-align:middle;margin-left:5px;padding:2px 6px;border-radius:999px;background:#e8f4f8;color:#0f718e;font-size:9px;font-weight:800}
+
+/* v196 - Rentabilidad 2 corregida y optimizada exclusivamente para movil */
+#profit2{overflow:hidden}
+#profit2 .r2-title{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:8px!important;margin:8px 0 10px!important}
+#profit2 .r2-title h2{font-size:21px!important;padding-left:13px!important;letter-spacing:-.02em!important}
+#profit2 .r2-title>div{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+#profit2 .r2-title button{height:42px!important;min-height:42px!important;padding:7px 12px!important;border-radius:21px!important;font-size:13px!important;white-space:nowrap!important}
+#profit2 .r2-filters{gap:8px!important;padding:12px!important;border-radius:20px!important;margin-bottom:10px!important}
+#profit2 .r2-filters label{font-size:11px!important;gap:5px!important}
+#profit2 .r2-select{height:40px!important;min-height:40px!important;padding:7px 11px!important;border-radius:11px!important;font-size:13px!important;font-weight:700!important}
+#profit2 .r2-kpis{border-radius:14px!important;margin-bottom:10px!important}
+#profit2 .r2-kpis>div{min-width:0!important;padding:10px 8px!important}
+#profit2 .r2-kpis span{font-size:10px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#profit2 .r2-kpis b{font-size:13px!important;white-space:nowrap!important;letter-spacing:-.02em!important}
+#profit2 .r2-table-card{padding:12px 8px 10px!important;border-radius:20px!important;overflow:hidden!important}
+#profit2 .r2-table-card h3{margin:2px 8px 10px!important;font-size:18px!important}
+#profit2 .r2-table-card .scroll{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-inline:contain!important;padding-bottom:3px!important}
+#profit2 .r2-table{min-width:760px!important;width:max-content!important;table-layout:fixed!important}
+#profit2 .r2-table th,#profit2 .r2-table td{height:36px!important;padding:6px 4px!important;font-size:10px!important}
+#profit2 .r2-table th:first-child,#profit2 .r2-table td:first-child{position:sticky!important;left:0!important;z-index:3!important;width:104px!important;max-width:104px!important;min-width:104px!important;background:#fff!important;box-shadow:2px 0 0 #dfe7ec!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#profit2 .r2-table thead th:first-child{z-index:5!important;background:#f4f8fb!important}
+#profit2 .r2-table .r2-total td:first-child{z-index:4!important;background:#f4f8fb!important}
+#profit2 .r2-table th:not(:first-child),#profit2 .r2-table td:not(:first-child){width:82px!important;max-width:82px!important;min-width:82px!important}
+#profit2 .r2-table button{font-size:10px!important;padding:2px!important}
+#profit2 .r2-record{border-radius:15px!important;padding:10px!important;margin-bottom:7px!important}
+@media(max-width:430px){
+ #profit2 .r2-title{grid-template-columns:1fr!important}
+ #profit2 .r2-title>div{width:100%!important}
+ #profit2 .r2-title button{width:100%!important}
+ #profit2 .r2-filters{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #profit2 .r2-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #profit2 .r2-kpis b{font-size:12px!important}
+}
