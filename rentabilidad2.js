@@ -1,4 +1,4 @@
-/* RENTABILIDAD2_VALIDATED_V223 */
+/* RENTABILIDAD2_VALIDATED_V224 */
 'use strict';
 (()=>{
 const $=id=>document.getElementById(id), ID='profit2', EURO=n=>(Number(n)||0).toLocaleString('es-ES',{style:'currency',currency:'EUR'});
@@ -52,5 +52,8 @@ function r2MoveRecord(kind,id,beforeId){const key=kind==='income'?'profitIncomes
       TAB_ORDER.splice(1,0,'profit2');
     }
   }
-  finalizeMainNavigation();document.addEventListener('click',closeMenu);document.querySelector('[data-tab="profit2"]')?.addEventListener('click',render);render();
+  finalizeMainNavigation();
+  const homeSection=document.getElementById('home'),alerts=document.getElementById('alerts'),mortgageBrief=document.getElementById('mortgageBrief');
+  const alertsCard=alerts?.closest('.card'),mortgageCard=mortgageBrief?.closest('.card');
+  if(homeSection&&alertsCard&&mortgageCard)homeSection.insertBefore(alertsCard,mortgageCard);document.addEventListener('click',closeMenu);document.querySelector('[data-tab="profit2"]')?.addEventListener('click',render);render();
 })();
