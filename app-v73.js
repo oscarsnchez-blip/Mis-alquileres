@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v224';
+window.MININOS_APP_VERSION='v226';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -293,7 +293,7 @@ if(profit2Btn){
   profit2Btn.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();activateTab('profit2');if(typeof renderRentabilidad2==='function')renderRentabilidad2();};
 }
 document.querySelector('nav [data-tab="home"]')?.after(profit2Btn);
-E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=224').then(r=>r.update());
+E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=226').then(r=>r.update());
 
 /* mininos-v12-definitiva */
 const V12_TAX_FIELDS={IBI:'ibiPaidByYear','Tasa de basura':'wastePaidByYear'};
@@ -1231,7 +1231,7 @@ E('simRate').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();v12RenderSimul
     y.value=old[0];m.value=old[1];if(p)p.value=old[2];if(ded)ded.value=old[3];return t;
   }
   const baseHome=renderHome;
-  renderHome=function(){baseHome();const t=homeValues(),cards=[...E('metrics').querySelectorAll('.metric')];let b=cards.find(x=>/Flujo del mes|Beneficio del mes|Beneficio neto del mes/.test(x.querySelector('.muted')?.textContent||'')),g=cards.find(x=>/Gastos mensuales|Gastos reales del mes/.test(x.querySelector('.muted')?.textContent||''));if(b)b.innerHTML=`<span class="muted">Beneficio neto del mes</span><b class="${t.net>=0?'positive':'negative'}">${money(t.net)}</b>`;if(g)g.innerHTML=`<span class="muted">Gastos reales del mes</span><b class="negative">${money(t.real)}</b>`};window.renderHome=renderHome;
+  renderHome=function(){baseHome();const t=typeof window.r2HomeMonthValues==='function'?window.r2HomeMonthValues():homeValues(),cards=[...E('metrics').querySelectorAll('.metric')];let b=cards.find(x=>/Flujo del mes|Beneficio del mes|Beneficio neto del mes/.test(x.querySelector('.muted')?.textContent||'')),g=cards.find(x=>/Gastos mensuales|Gastos reales del mes/.test(x.querySelector('.muted')?.textContent||''));if(b)b.innerHTML=`<span class="muted">Beneficio neto del mes</span><b class="${t.net>=0?'positive':'negative'}">${money(t.net)}</b>`;if(g)g.innerHTML=`<span class="muted">Gastos reales del mes</span><b class="negative">${money(t.real)}</b>`};window.renderHome=renderHome;
   ['profitYear','profitMonth','profitProperty','profitDeductible'].forEach(id=>{const el=E(id);if(el)el.onchange=renderProfit});
   const css=document.createElement('style');css.textContent='#profit .profit-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}#profitProperties .v14-table{min-width:1100px!important}';document.head.appendChild(css);
   document.querySelectorAll('.mininos-header-version').forEach(b=>b.textContent=window.MININOS_APP_VERSION);
