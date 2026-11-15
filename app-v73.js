@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v257';
+window.MININOS_APP_VERSION='v258';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -156,7 +156,7 @@ let db=load(); db.reviewedAlerts=db.reviewedAlerts||{}; db.plan=db.plan||{annual
 function persist(){localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem('mininos-local-updated',new Date().toISOString());renderAll();scheduleAutoUpload()} function prop(id){return db.properties.find(x=>x.id===id)} function con(id){return db.contracts.find(x=>x.id===id)}
 function opts(xs,selected=''){return xs.map(x=>`<option value="${esc(x[0])}" ${x[0]===selected?'selected':''}>${esc(x[1])}</option>`).join('')} function pOpts(){return db.properties.map(p=>[p.id,p.name])} function cOpts(){return db.contracts.map(c=>[c.id,(prop(c.propertyId)?.name||'Piso')+' · '+c.tenant])}
 function field(label,id,type='text',val='',extra=''){return `<label>${label}</label><input id="${id}" type="${type}" value="${esc(val)}" ${extra}>`} function select(label,id,list,val=''){return `<label>${label}</label><select id="${id}">${opts(list,val)}</select>`}
-function modal(title,html,save){E('formTitle').textContent=title;E('fields').innerHTML=html;E('form').onsubmit=e=>{e.preventDefault();save();E('modal').close()};E('modal').showModal()}
+function modal(title,html,save){const dlg=E('modal');dlg.classList.toggle('entity-modern-form',['Inmueble','Contrato','Hipoteca'].includes(title));E('formTitle').textContent=title;E('fields').innerHTML=html;E('form').onsubmit=e=>{e.preventDefault();save();dlg.close()};dlg.showModal()}
 function upsert(k,x){const i=db[k].findIndex(v=>v.id===x.id);i<0?db[k].push(x):db[k][i]=x;persist()} function del(k,id){if(confirm('¿Eliminar este registro?')){db[k]=db[k].filter(x=>x.id!==id);persist()}}
 const MININOS_RECEIPT_DB='mininos-receipts-v1',MININOS_RECEIPT_STORE='files';
 function receiptDb(){return new Promise((ok,fail)=>{const q=indexedDB.open(MININOS_RECEIPT_DB,1);q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains(MININOS_RECEIPT_STORE))q.result.createObjectStore(MININOS_RECEIPT_STORE,{keyPath:'key'})};q.onsuccess=()=>ok(q.result);q.onerror=()=>fail(q.error)})}
@@ -298,7 +298,7 @@ if(profit2Btn){
   profit2Btn.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();activateTab('profit2');if(typeof renderRentabilidad2==='function')renderRentabilidad2();};
 }
 document.querySelector('nav [data-tab="home"]')?.after(profit2Btn);
-E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=257').then(r=>r.update());
+E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=258').then(r=>r.update());
 
 /* mininos-v12-definitiva */
 const V12_TAX_FIELDS={IBI:'ibiPaidByYear','Tasa de basura':'wastePaidByYear'};
