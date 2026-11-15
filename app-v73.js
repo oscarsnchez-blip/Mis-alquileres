@@ -1,5 +1,5 @@
 /* VERSION UNICA DE LA APP: cambiar solo esta linea. */
-window.MININOS_APP_VERSION='v245';
+window.MININOS_APP_VERSION='v246';
 
 /* V176: símbolos interiores de Cobros igualados a 14 px de Hipotecas en móvil. */
 (()=>{
@@ -129,7 +129,7 @@ window.addEventListener('load',function MININOS_V138(){
   }
 
   const title=c=>(c?.querySelector(':scope > span')?.textContent||'').trim();
-  function rebuild(id){currentPropertyId=id;const g=document.querySelector('#detailBody .detail-grid'),p=prop(id);if(!g||!p)return;[...g.children].forEach(c=>{const t=title(c);if(c.matches('.tax103,.tax102,.tax101,.tax100,.tax99-card,.tax94-card,.tax93-card,.tax83-card,.tax83')||['IBI anual','Fecha IBI','Tasa de basura','Fecha basura'].includes(t)||/^(IBI|Tasa de basura)\s+\d{4}(\s*·\s*justificante)?$/.test(t))c.remove()});const anchor=[...g.children].find(c=>title(c)==='Contrato activo');const ibi=card(p,'IBI'),waste=card(p,'Tasa de basura');anchor?anchor.after(ibi,waste):g.prepend(ibi,waste)}
+  function rebuild(id){currentPropertyId=id;const g=document.querySelector('#detailBody .detail-grid'),p=prop(id);if(!g||!p)return;[...g.children].forEach(c=>{const t=title(c);if(c.matches('.tax103,.tax102,.tax101,.tax100,.tax99-card,.tax94-card,.tax93-card,.tax83-card,.tax83')||['IBI anual','Fecha IBI','Tasa de basura','Fecha basura'].includes(t)||/^(IBI|Tasa de basura)\s+\d{4}(\s*·\s*justificante)?$/.test(t))c.remove()});/* IBI y basura se gestionan exclusivamente como gastos anuales de Rentabilidad. */}
   const baseShow=window.showProperty||showProperty;window.showProperty=showProperty=function(id){const r=baseShow(id);requestAnimationFrame(()=>rebuild(id));setTimeout(()=>rebuild(id),100);version();return r};
   const baseExpense=window.showProfitExpense||showProfitExpense;window.showProfitExpense=showProfitExpense=function(id){currentExpenseId=id;currentPropertyId='';return baseExpense(id)};
   window.deleteProfitExpense=deleteProfitExpense=async function(id){if(typeof viewer==='function'&&isViewer())return;const x=(db.profitExpenses||[]).find(v=>v.id===id);if(!x)return;if(!await ask('Eliminar gasto',`¿Eliminar ${x.concept||'este gasto'}?`,'Eliminar'))return;db.profitExpenses=db.profitExpenses.filter(v=>v.id!==id);const label=x.taxLabel||(String(x.concept||'').match(/^IBI\b/i)?'IBI':(/^Tasa(?: de)? basura\b/i.test(String(x.concept||''))?'Tasa de basura':''));if(label){const p=prop(x.propertyId),f=field(label),year=String(x.taxYear||YEAR);if(p?.[f])delete p[f][year];delete store()[receiptKey(x.propertyId,label,year)]}save();refreshAll()};
@@ -298,7 +298,7 @@ if(profit2Btn){
   profit2Btn.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();activateTab('profit2');if(typeof renderRentabilidad2==='function')renderRentabilidad2();};
 }
 document.querySelector('nav [data-tab="home"]')?.after(profit2Btn);
-E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=245').then(r=>r.update());
+E('deviceMode').value=deviceMode();applyDeviceMode();E('autoSync').checked=autoSyncEnabled();E('cloudPassword').value=savedCloudPassword();if(autoSyncEnabled())setTimeout(initialCloudSync,600);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=246').then(r=>r.update());
 
 /* mininos-v12-definitiva */
 const V12_TAX_FIELDS={IBI:'ibiPaidByYear','Tasa de basura':'wastePaidByYear'};
@@ -331,26 +331,9 @@ renderHome=function(){
   if(!box.querySelector('.alert'))box.innerHTML='<div class="empty">Sin avisos</div>';
 };
 
-// Payment controls live inside the property detail, not on the alert.
+// IBI y tasa de basura ya no se representan en la ficha del inmueble.
 const v12ShowPropertyBase=showProperty;
-showProperty=function(id){
-  v12ShowPropertyBase(id);
-  const p=prop(id),grid=E('detailBody')?.querySelector('.detail-grid');
-  if(!p||!grid)return;
-  [['IBI',p.ibiDate],['Tasa de basura',p.wasteDate]].forEach(([label,date])=>{
-    if(!date)return;
-    const due=annualDue(date)||date,year=due.slice(0,4),paid=v12TaxPaidDate(p,label,year);
-    const cell=document.createElement('div');
-    cell.className='detail-cell detail-wide';
-    const title=document.createElement('span');title.textContent=`${label} ${year}`;
-    const status=document.createElement('b');status.className=paid?'positive':'negative';status.textContent=paid?`Pagado el ${fmt(paid)}`:'Pendiente';
-    cell.append(title,status);
-    if(!isViewer()){
-      const wrap=document.createElement('div'),btn=document.createElement('button');wrap.style.marginTop='9px';btn.className=paid?'secondary':'';btn.textContent=paid?'Deshacer pago':'Marcar como pagado';btn.onclick=()=>paid?v12UndoTaxPaid(id,label,year):v12SetTaxPaid(id,label,year);wrap.appendChild(btn);cell.appendChild(wrap);
-    }
-    grid.appendChild(cell);
-  });
-};
+showProperty=function(id){v12ShowPropertyBase(id)};
 
 // Simulator for a completely new mortgage, independent of saved mortgages.
 function v12MortgagePayment(capital,annualRate,years){const n=years*12,r=annualRate/1200;if(capital<=0||n<=0)return 0;return r?capital*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):capital/n}
