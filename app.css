@@ -292,3 +292,13 @@ dialog#modal.entity-modern-form #fields select option,dialog#modal.entity-modern
 #mortgageList .mortgage-line-v155 .modern-actions{grid-column:4!important;justify-self:end!important;transform:translateX(6px)!important;width:28px!important;min-width:28px!important}
 #mortgageList .mortgage-line-v155 .modern-actions .icon-btn{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important}
 @media(max-width:520px){#mortgageList .mortgage-line-v155{grid-template-columns:40px minmax(0,1fr) 128px 28px!important;column-gap:5px!important}#mortgageList .mortgage-numbers-v155{width:128px!important}#mortgageList .mortgage-line-v155 .modern-title{font-size:11px!important}#mortgageList .mortgage-line-v155 .modern-meta{font-size:9px!important}#mortgageList .mortgage-numbers-v155 strong{font-size:11px!important}#mortgageList .mortgage-numbers-v155 small{font-size:8px!important}}
+
+/* V264 - Compactación vertical y cifras derechas de Hipotecas */
+#mortgageList .mortgage-card-v155{padding-top:7px!important;padding-bottom:7px!important;margin-bottom:6px!important}
+#mortgageList .mortgage-line-v155{min-height:72px!important}
+#mortgageList .mortgage-numbers-v155 strong{font-size:11px!important;line-height:1.05!important}
+#mortgageList .mortgage-numbers-v155 small{margin-top:2px!important;gap:1px!important;font-size:8px!important;line-height:1.05!important}
+#mortgageList .mortgage-line-v155 .modern-title{line-height:1.05!important}
+#mortgageList .mortgage-line-v155 .modern-meta{margin-top:1px!important;line-height:1.1!important}
+#mortgageList .mortgage-line-v155 .modern-tags{margin-top:2px!important}
+@media(max-width:520px){#mortgageList .mortgage-card-v155{padding-top:6px!important;padding-bottom:6px!important;margin-bottom:5px!important}#mortgageList .mortgage-line-v155{min-height:68px!important}#mortgageList .mortgage-numbers-v155 strong{font-size:10px!important}#mortgageList .mortgage-numbers-v155 small{font-size:7.5px!important}}
