@@ -302,3 +302,13 @@ dialog#modal.entity-modern-form #fields select option,dialog#modal.entity-modern
 #mortgageList .mortgage-line-v155 .modern-meta{margin-top:1px!important;line-height:1.1!important}
 #mortgageList .mortgage-line-v155 .modern-tags{margin-top:2px!important}
 @media(max-width:520px){#mortgageList .mortgage-card-v155{padding-top:6px!important;padding-bottom:6px!important;margin-bottom:5px!important}#mortgageList .mortgage-line-v155{min-height:68px!important}#mortgageList .mortgage-numbers-v155 strong{font-size:10px!important}#mortgageList .mortgage-numbers-v155 small{font-size:7.5px!important}}
+
+/* V265 - Altura real compacta y título de Hipotecas igual que Pisos/Contratos */
+#mortgageList .mortgage-card-v155{padding-top:4px!important;padding-bottom:4px!important;margin-bottom:5px!important;min-height:0!important;height:auto!important}
+#mortgageList .mortgage-line-v155{min-height:58px!important;height:58px!important;align-items:center!important}
+#mortgageList .mortgage-line-v155 .modern-icon{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;border-radius:11px!important}
+#mortgageList .mortgage-line-v155 .modern-title{font-size:13px!important;line-height:1.1!important;font-weight:800!important}
+#mortgageList .mortgage-line-v155 .modern-meta{margin-top:1px!important;font-size:9px!important;line-height:1.05!important}
+#mortgageList .mortgage-line-v155 .modern-tags{margin-top:2px!important}
+#mortgageList .mortgage-line-v155 .modern-tag{font-size:8px!important;padding:2px 6px!important;line-height:1!important}
+@media(max-width:520px){#mortgageList .mortgage-card-v155{padding-top:3px!important;padding-bottom:3px!important;margin-bottom:4px!important}#mortgageList .mortgage-line-v155{min-height:54px!important;height:54px!important}#mortgageList .mortgage-line-v155 .modern-icon{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important}#mortgageList .mortgage-line-v155 .modern-title{font-size:12px!important}}
